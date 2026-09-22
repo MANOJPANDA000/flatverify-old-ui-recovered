@@ -54,13 +54,13 @@ export const CalculatorUnitToggle: React.FC<CalculatorUnitToggleProps> = ({
   if (variant === 'compact') {
     return (
       <div
-        className={`inline-flex items-center bg-[#F1F5F9] p-1 rounded-xl border border-[#E2E8F0] shadow-2xs ${className}`}
+        className={`flex items-center bg-[#F1F5F9] p-0.5 sm:p-1 rounded-xl border border-[#E2E8F0] shadow-2xs ${className}`}
         role="group"
         aria-label="Measurement Unit Switcher"
       >
-        <span className="text-[11px] font-bold text-[#475569] pl-1.5 pr-1 flex items-center gap-1">
+        <span className="text-[10px] sm:text-[11px] font-bold text-[#475569] pl-1.5 pr-1 flex items-center gap-1 shrink-0">
           <ArrowLeftRight className="w-3 h-3 text-blue-600" />
-          <span className="hidden sm:inline">Unit:</span>
+          <span className="hidden xs:inline">Unit:</span>
         </span>
         {options.map(opt => {
           const isSelected = displayUnit === opt.key;
@@ -70,7 +70,7 @@ export const CalculatorUnitToggle: React.FC<CalculatorUnitToggleProps> = ({
               type="button"
               onClick={() => onUnitChange(opt.key)}
               title={`${opt.label} (${opt.sublabel}) - ${opt.description}`}
-              className={`cursor-pointer transition-all duration-150 rounded-lg font-bold text-center text-xs px-2.5 py-1 select-none whitespace-nowrap ${
+              className={`flex-1 cursor-pointer transition-all duration-150 rounded-lg font-bold text-center text-[10px] sm:text-xs px-2 sm:px-2.5 py-1 select-none whitespace-nowrap ${
                 isSelected
                   ? 'bg-white text-blue-700 shadow-xs ring-1 ring-black/5 font-black'
                   : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/50'

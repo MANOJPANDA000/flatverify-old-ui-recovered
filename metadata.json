@@ -1,0 +1,7 @@
+{
+  "name": "Flatverify.ai",
+  "description": "Understand your property: Floor plan dimension scanner and RERA carpet area calculator with automated OCR parsing, wall & loading assumptions, and PDF reports.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

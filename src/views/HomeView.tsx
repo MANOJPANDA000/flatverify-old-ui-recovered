@@ -140,15 +140,15 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             {recentAudits.map(audit => (
               <div
                 key={audit.id}
-                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F8FAFC] -mx-4 px-4 rounded-xl transition-colors"
+                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F8FAFC] sm:-mx-4 sm:px-4 rounded-xl transition-colors"
               >
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm text-[#0F172A] truncate">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-bold text-sm text-[#0F172A] truncate max-w-[200px] sm:max-w-xs">
                       {audit.auditName}
                     </h3>
                     <span
-                      className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
+                      className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded shrink-0 ${
                         audit.type === 'scan'
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -158,12 +158,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                     </span>
                   </div>
 
-                  <div className="text-xs text-[#64748B] mt-0.5 flex items-center gap-3">
-                    <span>
+                  <div className="text-xs text-[#64748B] mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="truncate">
                       {audit.project ? `${audit.project} • ` : ''}
                       {audit.rooms?.length || 0} rooms
                     </span>
-                    <span>•</span>
+                    <span className="hidden xs:inline">•</span>
                     <span>
                       Updated{' '}
                       {new Date(audit.timestamp).toLocaleDateString('en-US', {
@@ -176,10 +176,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
                 <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
                   <div className="text-left sm:text-right">
-                    <div className="font-extrabold text-sm text-[#1D4ED8]">
+                    <div className="font-extrabold text-sm text-[#1D4ED8] whitespace-nowrap">
                       {DimensionParser.formatArea(audit.carpetArea, displayUnit)}
                     </div>
-                    <div className="text-[11px] text-[#64748B]">
+                    <div className="text-[11px] text-[#64748B] whitespace-nowrap">
                       Carpet Area ({audit.loadingPercent.toFixed(0)}% loading)
                     </div>
                   </div>
@@ -187,7 +187,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
                   <button
                     type="button"
                     onClick={() => setSelectedAuditForPdf(audit)}
-                    className="px-3 py-1.5 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                    className="px-3 py-1.5 bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] font-bold text-xs rounded-lg transition-colors cursor-pointer shrink-0"
                   >
                     View PDF
                   </button>

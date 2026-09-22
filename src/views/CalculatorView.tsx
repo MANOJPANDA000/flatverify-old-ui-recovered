@@ -333,7 +333,7 @@ export const CalculatorView: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       {/* Title & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">
             Manual Carpet Area Calculator
@@ -343,38 +343,42 @@ export const CalculatorView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Quick-Toggle Unit Converter */}
-          <CalculatorUnitToggle
-            variant="compact"
-            displayUnit={displayUnit}
-            onUnitChange={handleUnitSystemChange}
-          />
+          <div className="shrink-0">
+            <CalculatorUnitToggle
+              variant="compact"
+              displayUnit={displayUnit}
+              onUnitChange={handleUnitSystemChange}
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => openReraModal('comparison')}
-            className="px-3.5 py-2 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            className="px-3 py-2 text-[10px] sm:text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
             title="View RERA definitions for Carpet Area vs Built-up Area, Balconies & Utilities"
           >
             <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
-            <span>Carpet vs Built-up Rules</span>
+            <span className="hidden xs:inline">Carpet vs Built-up Rules</span>
+            <span className="xs:hidden">Rules</span>
           </button>
 
           <button
             type="button"
             onClick={() => downloadFile('/flutter_rera_calculator.zip', 'flutter_rera_calculator.zip')}
-            className="px-3 py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            className="px-3 py-2 text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
             title="Download complete Flutter project code as .zip"
           >
             <Download className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Flutter App (.zip)</span>
+            <span className="hidden xs:inline">Flutter App (.zip)</span>
+            <span className="xs:hidden">App</span>
           </button>
 
           <button
             type="button"
             onClick={handleResetAll}
-            className="px-3 py-2 text-xs font-bold text-[#64748B] hover:text-[#0F172A] hover:bg-white border border-[#E2E8F0] rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            className="px-3 py-2 text-[10px] sm:text-xs font-bold text-[#64748B] hover:text-[#0F172A] hover:bg-white border border-[#E2E8F0] rounded-xl flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
             title="Reset form"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -384,7 +388,7 @@ export const CalculatorView: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsPdfModalOpen(true)}
-            className="px-3.5 py-2 text-xs font-bold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3 py-2 text-[10px] sm:text-xs font-bold text-[#1D4ED8] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <FileCheck className="w-3.5 h-3.5" />
             <span>Preview PDF</span>
@@ -393,7 +397,7 @@ export const CalculatorView: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsSaveModalOpen(true)}
-            className="px-4 py-2 text-xs font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl flex items-center gap-1.5 shadow-xs shadow-blue-500/20 transition-colors cursor-pointer"
+            className="px-3.5 py-2 text-[10px] sm:text-xs font-bold bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-xl flex items-center gap-1.5 shadow-xs shadow-blue-500/20 transition-colors cursor-pointer"
           >
             <Save className="w-3.5 h-3.5" />
             <span>Save Audit</span>

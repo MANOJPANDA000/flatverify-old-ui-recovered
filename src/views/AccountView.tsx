@@ -57,7 +57,7 @@ export const AccountView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-16">
+    <div className="max-w-4xl w-full mx-auto space-y-8 pb-16">
       {/* Page Title */}
       <div>
         <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">
@@ -69,14 +69,14 @@ export const AccountView: React.FC = () => {
       </div>
 
       {/* User Profile Card */}
-      <div className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-xl shadow-md shadow-blue-500/20">
+      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md shadow-blue-500/20">
             {user.isGuest ? 'G' : user.displayName.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-extrabold text-[#0F172A]">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-base font-extrabold text-[#0F172A] truncate">
                 {user.isGuest ? 'Guest Session' : user.displayName}
               </h2>
               <span

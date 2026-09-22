@@ -6,18 +6,31 @@ import { CalculatorView } from './views/CalculatorView';
 import { ScannerView } from './views/ScannerView';
 import { AuditsView } from './views/AuditsView';
 import { AccountView } from './views/AccountView';
+import { WelcomeView } from './views/WelcomeView';
+import { SignUpPlaceholder, SignInPlaceholder } from './views/PlaceholderViews';
 import { ShieldCheck, Ruler, FileText } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<NavTab>('home');
+  const [activeTab, setActiveTab] = useState<NavTab>('welcome');
+
+  const isAuthFlow = activeTab === 'welcome' || activeTab === 'signup_placeholder' || activeTab === 'signin_placeholder';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FD] text-[#0F172A]">
-      {/* Navigation Header */}
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Navigation Header - Only shown if NOT in auth flow */}
+      {!isAuthFlow && <Header activeTab={activeTab} onTabChange={setActiveTab} />}
 
       {/* Main View Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <main className={`${!isAuthFlow ? 'flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6' : 'flex-1'}`}>
+        {activeTab === 'welcome' && (
+          <WelcomeView 
+            onGetStarted={() => setActiveTab('signup_placeholder')}
+            onSignIn={() => setActiveTab('signin_placeholder')}
+          />
+        )}
+        {activeTab === 'signup_placeholder' && <SignUpPlaceholder onBack={() => setActiveTab('welcome')} />}
+        {activeTab === 'signin_placeholder' && <SignInPlaceholder onBack={() => setActiveTab('welcome')} />}
+        
         {activeTab === 'home' && <HomeView onNavigate={setActiveTab} />}
         {activeTab === 'calculator' && <CalculatorView />}
         {activeTab === 'scanner' && <ScannerView />}
@@ -25,9 +38,10 @@ export const AppContent: React.FC = () => {
         {activeTab === 'account' && <AccountView />}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-[#E2E8F0] py-8 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">
+      {/* Footer - Only shown if NOT in auth flow */}
+      {!isAuthFlow && (
+        <footer className="bg-white border-t border-[#E2E8F0] py-8 mt-auto w-full">
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-[#0F172A]">Flatverify.ai</span>
             <span>•</span>
@@ -68,6 +82,7 @@ export const AppContent: React.FC = () => {
           </div>
         </div>
       </footer>
+      )}
     </div>
   );
 };

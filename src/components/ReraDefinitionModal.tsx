@@ -258,8 +258,8 @@ export const ReraDefinitionModal: React.FC<ReraDefinitionModalProps> = ({
                 <h4 className="font-black text-xs sm:text-sm text-[#0F172A] uppercase tracking-wide">
                   Summary Matrix: Where Every Element Goes
                 </h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
+                <div className="overflow-x-auto no-scrollbar border border-slate-200 rounded-xl">
+                  <table className="min-w-[500px] w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-slate-200 text-slate-500 font-bold">
                         <th className="py-2 px-2">Space / Architectural Element</th>

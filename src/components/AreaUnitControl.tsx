@@ -34,7 +34,7 @@ export const AreaUnitControl: React.FC<AreaUnitControlProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center bg-[#F1F5F9] p-1 rounded-xl border border-[#E2E8F0] shadow-xs ${className}`}
+      className={`flex items-center bg-[#F1F5F9] p-1 rounded-xl border border-[#E2E8F0] shadow-xs ${className}`}
       role="group"
       aria-label="Select Area Unit"
     >
@@ -46,7 +46,7 @@ export const AreaUnitControl: React.FC<AreaUnitControlProps> = ({
             type="button"
             onClick={() => onChanged(opt.key)}
             title={opt.title}
-            className={`cursor-pointer transition-all duration-150 rounded-lg font-bold text-center select-none whitespace-nowrap ${
+            className={`flex-1 cursor-pointer transition-all duration-150 rounded-lg font-bold text-center select-none whitespace-nowrap ${
               size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-xs'
             } ${
               isSelected

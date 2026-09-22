@@ -2,7 +2,7 @@ import React from 'react';
 
 interface BrandLogoProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   showText?: boolean;
 }
 
@@ -11,10 +11,10 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   size = 'md',
   showText = true,
 }) => {
-  const iconSize = size === 'sm' ? 28 : size === 'lg' ? 44 : 36;
+  const iconSize = size === 'sm' ? 28 : size === 'lg' ? 44 : size === 'xl' ? 56 : size === '2xl' ? 76 : 36;
 
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
+    <div className={`flex items-center gap-3 sm:gap-4 ${className}`}>
       {/* Original App Logo matching favicon.svg */}
       <div
         className="relative flex items-center justify-center shrink-0 drop-shadow-sm transition-transform group-hover:scale-105"
@@ -52,10 +52,17 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
       {showText && (
         <div className="flex flex-col leading-none">
-          <span className="font-black text-[18px] tracking-tight text-[#0F172A]">
-            Flatverify<span className="text-[#2563EB]">.ai</span>
+          <span className={`${
+            size === '2xl' ? 'text-[28px] sm:text-[34px]' : 
+            size === 'xl' ? 'text-[23px]' : 
+            size === 'lg' ? 'text-[20px]' : 'text-[18px]'
+          } font-black tracking-tight text-[#172033]`}>
+            Flatverify<span className="text-[#2457D6]">.ai</span>
           </span>
-          <span className="text-[11px] font-semibold text-[#64748B] tracking-tight mt-0.5">
+          <span className={`${
+            size === '2xl' ? 'text-[15px] sm:text-[17px]' :
+            size === 'xl' ? 'text-[12px]' : 'text-[11px]'
+          } font-medium text-[#697386] tracking-tight mt-1 sm:mt-1.5`}>
             Understand your property
           </span>
         </div>

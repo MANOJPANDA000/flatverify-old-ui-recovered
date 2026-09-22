@@ -497,7 +497,7 @@ export const AuditsView: React.FC<AuditsViewProps> = ({ onNavigate }) => {
               </div>
 
               {/* Property Details Pill Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] text-xs">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] text-xs">
                 <div>
                   <span className="text-[#94A3B8] font-semibold block">Builder:</span>
                   <span className="font-bold text-[#0F172A]">{selectedAudit.builder || 'N/A'}</span>
@@ -525,7 +525,7 @@ export const AuditsView: React.FC<AuditsViewProps> = ({ onNavigate }) => {
               </div>
 
               {/* Area Metrics Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3">
                 <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200">
                   <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wide">
                     Carpet Area
@@ -632,8 +632,8 @@ export const AuditsView: React.FC<AuditsViewProps> = ({ onNavigate }) => {
                   Verified Room Dimensions ({selectedAudit.rooms?.length || 0})
                 </h3>
 
-                <div className="border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-2xs">
-                  <table className="w-full text-left text-xs border-collapse">
+                <div className="border border-[#E2E8F0] rounded-2xl overflow-x-auto shadow-2xs no-scrollbar">
+                  <table className="min-w-[400px] w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#475569] font-bold">
                         <th className="py-2.5 px-4">Room / Space</th>
