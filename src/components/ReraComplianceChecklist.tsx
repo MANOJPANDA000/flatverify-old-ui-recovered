@@ -132,6 +132,26 @@ const PROPERTY_TYPE_CONFIG: Record<
     recommendedInternalWall: 8,
     minEfficiency: 60,
   },
+  plot: {
+    name: 'Residential / Commercial Plot',
+    label: 'Plot',
+    icon: Home,
+    description: 'Developed land parcel with demarcated boundaries and basic infrastructure.',
+    expectedLoadingMin: 0,
+    expectedLoadingMax: 10,
+    recommendedInternalWall: 0,
+    minEfficiency: 95,
+  },
+  other: {
+    name: 'Other Property Type',
+    label: 'Other',
+    icon: Layers,
+    description: 'Custom property type with specific statutory or structural norms.',
+    expectedLoadingMin: 15,
+    expectedLoadingMax: 35,
+    recommendedInternalWall: 10,
+    minEfficiency: 70,
+  },
 };
 
 export const ReraComplianceChecklist: React.FC<ReraComplianceChecklistProps> = ({

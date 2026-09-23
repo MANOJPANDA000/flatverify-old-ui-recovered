@@ -83,6 +83,8 @@ interface SessionContextType {
   unlockApp: () => void;
   biometricEnabled: boolean;
   setBiometricEnabled: (enabled: boolean) => void;
+  verificationDraft: Partial<PropertyAudit> | null;
+  setVerificationDraft: (draft: Partial<PropertyAudit> | null) => void;
 }
 
 const SETTINGS_STORAGE_KEY = 'flatverify_settings_v2';
@@ -119,6 +121,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [defaultInternalWallPercent, setDefaultInternalWallPercentState] = useState<number>(12.0);
   const [defaultExternalWallPercent, setDefaultExternalWallPercentState] = useState<number>(0.0);
   const [defaultLoadingPercent, setDefaultLoadingPercentState] = useState<number>(30.0);
+  const [verificationDraft, setVerificationDraft] = useState<Partial<PropertyAudit> | null>(null);
 
   // Helper to get biometric preference for a specific user
   const getBiometricPreference = (uid: string): boolean => {
@@ -297,7 +300,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isLocked,
         unlockApp,
         biometricEnabled,
-        setBiometricEnabled
+        setBiometricEnabled,
+        verificationDraft,
+        setVerificationDraft
       }}
     >
       {children}

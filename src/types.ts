@@ -4,7 +4,7 @@ export type AreaDisplayUnit = 'imperial' | 'metric' | 'hybrid';
 
 export type VerifyInputMode = 'photo' | 'manual';
 
-export type ReraPropertyType = 'apartment' | 'villa' | 'commercial' | 'studio' | 'penthouse';
+export type ReraPropertyType = 'apartment' | 'villa' | 'commercial' | 'studio' | 'penthouse' | 'plot' | 'other';
 
 export type RoomSpaceType =
   | 'internal' // Standard internal room enclosed within outer wall (Carpet + Built-up)
@@ -87,6 +87,8 @@ export interface PropertyAudit {
   configuration?: string;
   propertyType?: ReraPropertyType;
   notes?: string;
+  city?: string;
+  state?: string;
   timestamp: string;
   rawText?: string;
   parsedDimensions?: Record<string, string>;
@@ -113,6 +115,16 @@ export interface PropertyAudit {
   balconyArea?: number;
   utilityInsideArea?: number;
   utilityOutsideArea?: number;
+  // Builder-Stated Figures (Claimed Values)
+  builderCarpetArea?: number;
+  builderBuiltUpArea?: number;
+  builderSuperBuiltUpArea?: number;
+  builderOtherAreaName?: string;
+  builderOtherAreaValue?: number;
+  builderBalconyArea?: number;
+  builderLoadingPercent?: number;
+  builderAreaSources?: string[];
+  builderAreaReference?: string;
 }
 
 export interface UserProfile {

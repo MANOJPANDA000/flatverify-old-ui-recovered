@@ -71,6 +71,25 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
       {/* Highlights / Fast Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Area Verification Action Card */}
+        <button
+          onClick={() => onNavigate('property_details')}
+          className="col-span-full bg-white rounded-2xl p-5 border-2 border-blue-100 shadow-lg shadow-blue-900/5 flex items-center justify-between group hover:border-blue-600 transition-all cursor-pointer"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+              <FileCheck2 className="w-6 h-6" />
+            </div>
+            <div className="text-left">
+              <div className="text-lg font-black text-[#0F172A]">Area Verification</div>
+              <div className="text-xs font-semibold text-[#64748B]">Compare builder area with your measurements.</div>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+            <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+          </div>
+        </button>
+
         <div className="bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-xs flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <FileCheck2 className="w-6 h-6" />

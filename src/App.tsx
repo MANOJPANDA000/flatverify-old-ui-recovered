@@ -11,6 +11,8 @@ import { CreateAccountView } from './views/CreateAccountView';
 import { SignInView } from './views/SignInView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { BiometricUnlockView } from './views/BiometricUnlockView';
+import { PropertyDetailsView } from './views/PropertyDetailsView';
+import { BuilderAreaView } from './views/BuilderAreaView';
 
 export const AppContent: React.FC = () => {
   const { user, isInitializing, isLocked } = useSession();
@@ -22,7 +24,7 @@ export const AppContent: React.FC = () => {
 
     if (user.isGuest) {
       // If we are currently in a "protected" view but user is guest, go to welcome
-      const protectedTabs: NavTab[] = ['home', 'calculator', 'scanner', 'audits', 'account'];
+      const protectedTabs: NavTab[] = ['home', 'calculator', 'scanner', 'audits', 'account', 'property_details', 'builder_area', 'your_measurements'];
       if (protectedTabs.includes(activeTab)) {
         setActiveTab('welcome');
       }
@@ -49,11 +51,12 @@ export const AppContent: React.FC = () => {
   }
 
   const isAuthFlow = activeTab === 'welcome' || activeTab === 'create_account' || activeTab === 'sign_in' || activeTab === 'forgot_password';
+  const isWorkflow = activeTab === 'property_details' || activeTab === 'builder_area' || activeTab === 'your_measurements';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FD] text-[#0F172A]">
-      {/* Navigation Header - Only shown if NOT in auth flow */}
-      {!isAuthFlow && <Header activeTab={activeTab} onTabChange={setActiveTab} />}
+      {/* Navigation Header - Only shown if NOT in auth flow and NOT in multi-step workflow */}
+      {!isAuthFlow && !isWorkflow && <Header activeTab={activeTab} onTabChange={setActiveTab} />}
 
       {/* Main View Container */}
       <main className={`${!isAuthFlow ? 'flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6' : 'flex-1'}`}>
@@ -88,6 +91,33 @@ export const AppContent: React.FC = () => {
         {activeTab === 'scanner' && <ScannerView />}
         {activeTab === 'audits' && <AuditsView onNavigate={setActiveTab} />}
         {activeTab === 'account' && <AccountSettingsView />}
+
+        {activeTab === 'property_details' && (
+          <PropertyDetailsView 
+            onBack={() => setActiveTab('home')}
+            onContinue={() => setActiveTab('builder_area')}
+          />
+        )}
+
+        {activeTab === 'builder_area' && (
+          <BuilderAreaView 
+            onBack={() => setActiveTab('property_details')}
+            onContinue={() => setActiveTab('your_measurements')}
+          />
+        )}
+
+        {activeTab === 'your_measurements' && (
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <h2 className="text-xl font-bold text-slate-600">Step 3: Your Measurements</h2>
+            <p className="text-sm mt-2">Placeholder for measurements entry.</p>
+            <button 
+              onClick={() => setActiveTab('builder_area')}
+              className="mt-8 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 font-bold transition-all"
+            >
+              Back to Builder Area
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Footer - Only shown if NOT in auth flow */}
