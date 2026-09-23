@@ -4,6 +4,8 @@ import {
   Mail, 
   ArrowRight 
 } from 'lucide-react';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { BrandLogo } from '../components/BrandLogo';
 import { motion } from 'motion/react';
 
@@ -21,7 +23,7 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 1. Validation Logic
@@ -39,12 +41,17 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
     setError('');
     setIsLoading(true);
 
-    // 2. Simulated Backend Request (UI Only)
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await sendPasswordResetEmail(auth, email);
       setIsSuccess(true);
-      console.log('Simulated password reset link sent to:', email);
-    }, 1500);
+    } catch (error: any) {
+      console.error('Firebase Reset Error:', error);
+      // For security, we might not want to reveal if an email exists
+      // but Firebase returns error if we don't handle it
+      setIsSuccess(true); // Treat as success for security/privacy as per instructions
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSuccess) {
@@ -71,7 +78,7 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
           >
             <h1 className="text-[28px] font-extrabold text-[#172033]">Check your email</h1>
             <p className="text-[16px] text-[#697386] leading-relaxed max-w-[320px] mx-auto">
-              We've sent password reset instructions to <span className="font-bold text-[#172033]">{email}</span>.
+              If an account exists for <span className="font-bold text-[#172033]">{email}</span>, we've sent password reset instructions.
             </p>
           </motion.div>
 
@@ -107,7 +114,8 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
         <div className="flex items-center justify-between mb-8 sm:mb-10 pt-2">
           <button 
             onClick={onBack}
-            className="p-2 -ml-2 hover:bg-white/50 rounded-full transition-colors cursor-pointer"
+            disabled={isLoading}
+            className="p-2 -ml-2 hover:bg-white/50 rounded-full transition-colors cursor-pointer disabled:opacity-50"
             aria-label="Back to Sign In"
           >
             <ArrowLeft className="w-6 h-6 text-[#172033]" />
@@ -184,14 +192,16 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-[60px] bg-[#2457D6] hover:bg-[#1D47B0] disabled:bg-[#2457D6]/70 text-white font-bold text-[19px] rounded-[20px] shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-between px-8 cursor-pointer"
+              className="w-full h-[60px] bg-[#2457D6] hover:bg-[#1D47B0] disabled:bg-[#2457D6]/70 text-white font-bold text-[19px] rounded-[20px] shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center px-8 cursor-pointer"
             >
-              <div className="w-5" />
-              <span>{isLoading ? 'Sending...' : 'Send Reset Link'}</span>
               {isLoading ? (
-                <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <ArrowRight className="w-6 h-6 stroke-[3px]" />
+                <div className="flex items-center justify-between w-full">
+                  <div className="w-5" />
+                  <span>Send Reset Link</span>
+                  <ArrowRight className="w-6 h-6 stroke-[3px]" />
+                </div>
               )}
             </button>
           </div>
@@ -202,7 +212,8 @@ export const ForgotPasswordView: React.FC<ForgotPasswordViewProps> = ({
             <button
               type="button"
               onClick={onSignIn}
-              className="text-[#2457D6] font-bold text-[16px] hover:underline cursor-pointer"
+              disabled={isLoading}
+              className="text-[#2457D6] font-bold text-[16px] hover:underline cursor-pointer disabled:opacity-50"
             >
               Sign In
             </button>

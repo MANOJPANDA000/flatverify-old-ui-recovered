@@ -1,19 +1,52 @@
-import React, { useState } from 'react';
-import { SessionProvider } from './context/SessionContext';
+import React, { useState, useEffect } from 'react';
+import { SessionProvider, useSession } from './context/SessionContext';
 import { Header, NavTab } from './components/Header';
 import { HomeView } from './views/HomeView';
 import { CalculatorView } from './views/CalculatorView';
 import { ScannerView } from './views/ScannerView';
 import { AuditsView } from './views/AuditsView';
-import { AccountView } from './views/AccountView';
+import { AccountSettingsView } from './views/AccountSettingsView';
 import { WelcomeView } from './views/WelcomeView';
 import { CreateAccountView } from './views/CreateAccountView';
 import { SignInView } from './views/SignInView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
-import { ShieldCheck, Ruler, FileText } from 'lucide-react';
+import { BiometricUnlockView } from './views/BiometricUnlockView';
 
 export const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<NavTab>('forgot_password');
+  const { user, isInitializing, isLocked } = useSession();
+  const [activeTab, setActiveTab] = useState<NavTab>('welcome');
+
+  // Handle Initial State & Redirects
+  useEffect(() => {
+    if (isInitializing) return;
+
+    if (user.isGuest) {
+      // If we are currently in a "protected" view but user is guest, go to welcome
+      const protectedTabs: NavTab[] = ['home', 'calculator', 'scanner', 'audits', 'account'];
+      if (protectedTabs.includes(activeTab)) {
+        setActiveTab('welcome');
+      }
+    } else {
+      // If user is authenticated and on an auth tab, go to home
+      const authTabs: NavTab[] = ['welcome', 'create_account', 'sign_in', 'forgot_password'];
+      if (authTabs.includes(activeTab)) {
+        setActiveTab('home');
+      }
+    }
+  }, [user.isGuest, isInitializing, activeTab]);
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FD]">
+        <div className="w-12 h-12 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Handle Biometric Lock State
+  if (!user.isGuest && isLocked) {
+    return <BiometricUnlockView />;
+  }
 
   const isAuthFlow = activeTab === 'welcome' || activeTab === 'create_account' || activeTab === 'sign_in' || activeTab === 'forgot_password';
 
@@ -54,7 +87,7 @@ export const AppContent: React.FC = () => {
         {activeTab === 'calculator' && <CalculatorView />}
         {activeTab === 'scanner' && <ScannerView />}
         {activeTab === 'audits' && <AuditsView onNavigate={setActiveTab} />}
-        {activeTab === 'account' && <AccountView />}
+        {activeTab === 'account' && <AccountSettingsView />}
       </main>
 
       {/* Footer - Only shown if NOT in auth flow */}

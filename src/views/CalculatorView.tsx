@@ -282,9 +282,9 @@ export const CalculatorView: React.FC = () => {
   };
 
   // Build current audit object for preview or saving
-  const currentAuditObject: PropertyAudit = {
+  const currentAuditObject = {
     id: `calc_${Date.now()}`,
-    type: 'calculator',
+    type: 'calculator' as const,
     auditName: 'Manual Area Calculation Audit',
     timestamp: new Date().toISOString(),
     rooms: rooms.map(r => ({

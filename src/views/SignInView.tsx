@@ -7,6 +7,8 @@ import {
   EyeOff, 
   ArrowRight 
 } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { BrandLogo } from '../components/BrandLogo';
 import { motion } from 'motion/react';
 
@@ -22,6 +24,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
   onForgotPassword = () => console.log('Forgot password clicked')
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -29,15 +32,57 @@ export const SignInView: React.FC<SignInViewProps> = ({
     password: ''
   });
 
-  // Simple Validation UI preparation
+  // Validation UI state
   const [errors, setErrors] = useState({
     email: '',
-    password: ''
+    password: '',
+    general: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { email: '', password: '', general: '' };
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required';
+      isValid = false;
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Sign In clicked', formData);
+    if (isLoading) return;
+
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setErrors(prev => ({ ...prev, general: '' }));
+
+    try {
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      console.log('Signed in successfully');
+    } catch (error: any) {
+      console.error('Firebase Auth Error:', error);
+      let message = 'Invalid email or password.';
+      
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        message = 'Invalid email or password.';
+      } else if (error.code === 'auth/too-many-requests') {
+        message = 'Too many failed attempts. Please try again later.';
+      }
+      
+      setErrors(prev => ({ ...prev, general: message }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -48,7 +93,8 @@ export const SignInView: React.FC<SignInViewProps> = ({
         <div className="flex items-center justify-between mb-8 sm:mb-10 pt-2">
           <button 
             onClick={onBack}
-            className="p-2 -ml-2 hover:bg-white/50 rounded-full transition-colors cursor-pointer"
+            disabled={isLoading}
+            className="p-2 -ml-2 hover:bg-white/50 rounded-full transition-colors cursor-pointer disabled:opacity-50"
             aria-label="Back"
           >
             <ArrowLeft className="w-6 h-6 text-[#172033]" />
@@ -80,6 +126,12 @@ export const SignInView: React.FC<SignInViewProps> = ({
           onSubmit={handleSubmit}
           className="space-y-5"
         >
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-[18px] text-sm font-medium">
+              {errors.general}
+            </div>
+          )}
+
           {/* Email Address */}
           <div className="space-y-1.5">
             <label className="text-[14px] font-bold text-[#172033] ml-1">Email Address</label>
@@ -91,10 +143,11 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 type="email"
                 placeholder="name@email.com"
                 value={formData.email}
+                disabled={isLoading}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="w-full h-[58px] bg-white border border-slate-200 rounded-[18px] pl-12 pr-4 text-[#172033] font-medium outline-none focus-visible:ring-4 focus-visible:ring-[#2457D6]/10 focus-visible:border-[#2457D6] transition-all placeholder:text-[#697386]/50"
+                className="w-full h-[58px] bg-white border border-slate-200 rounded-[18px] pl-12 pr-4 text-[#172033] font-medium outline-none focus-visible:ring-4 focus-visible:ring-[#2457D6]/10 focus-visible:border-[#2457D6] transition-all placeholder:text-[#697386]/50 disabled:opacity-70"
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>}
+              {errors.email && <p className="text-red-500 text-[11px] mt-1 ml-1 font-bold">{errors.email}</p>}
             </div>
           </div>
 
@@ -109,8 +162,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={formData.password}
+                disabled={isLoading}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full h-[58px] bg-white border border-slate-200 rounded-[18px] pl-12 pr-12 text-[#172033] font-medium outline-none focus-visible:ring-4 focus-visible:ring-[#2457D6]/10 focus-visible:border-[#2457D6] transition-all placeholder:text-[#697386]/50"
+                className="w-full h-[58px] bg-white border border-slate-200 rounded-[18px] pl-12 pr-12 text-[#172033] font-medium outline-none focus-visible:ring-4 focus-visible:ring-[#2457D6]/10 focus-visible:border-[#2457D6] transition-all placeholder:text-[#697386]/50 disabled:opacity-70"
               />
               <button 
                 type="button"
@@ -127,24 +181,32 @@ export const SignInView: React.FC<SignInViewProps> = ({
               <button 
                 type="button"
                 onClick={onForgotPassword}
-                className="text-[#2457D6] text-[14px] font-semibold hover:underline cursor-pointer"
+                disabled={isLoading}
+                className="text-[#2457D6] text-[14px] font-semibold hover:underline cursor-pointer disabled:opacity-50"
               >
                 Forgot Password?
               </button>
             </div>
             
-            {errors.password && <p className="text-red-500 text-xs mt-1 ml-1">{errors.password}</p>}
+            {errors.password && <p className="text-red-500 text-[11px] mt-1 ml-1 font-bold">{errors.password}</p>}
           </div>
 
           {/* Sign In Button */}
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full h-[60px] bg-[#2457D6] hover:bg-[#1D47B0] text-white font-bold text-[20px] rounded-[20px] shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-between px-8 cursor-pointer"
+              disabled={isLoading}
+              className="w-full h-[60px] bg-[#2457D6] hover:bg-[#1D47B0] disabled:bg-[#2457D6]/70 text-white font-bold text-[20px] rounded-[20px] shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center px-8 cursor-pointer"
             >
-              <div className="w-5" />
-              <span>Sign In</span>
-              <ArrowRight className="w-6 h-6 stroke-[3px]" />
+              {isLoading ? (
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <div className="flex items-center justify-between w-full">
+                  <div className="w-5" />
+                  <span>Sign In</span>
+                  <ArrowRight className="w-6 h-6 stroke-[3px]" />
+                </div>
+              )}
             </button>
           </div>
 
@@ -154,7 +216,8 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <button
               type="button"
               onClick={onCreateAccount}
-              className="text-[#2457D6] font-bold text-[16px] hover:underline cursor-pointer"
+              disabled={isLoading}
+              className="text-[#2457D6] font-bold text-[16px] hover:underline cursor-pointer disabled:opacity-50"
             >
               Create Account
             </button>

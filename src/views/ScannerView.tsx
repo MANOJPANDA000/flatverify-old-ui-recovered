@@ -308,9 +308,9 @@ export const ScannerView: React.FC = () => {
   };
 
   // Build Audit Object
-  const currentScanAudit: PropertyAudit = {
+  const currentScanAudit = {
     id: `scan_${Date.now()}`,
-    type: 'scan',
+    type: 'scan' as const,
     auditName: 'Blueprint Scan Carpet Area Audit',
     timestamp: new Date().toISOString(),
     rawText: extractedRawText,

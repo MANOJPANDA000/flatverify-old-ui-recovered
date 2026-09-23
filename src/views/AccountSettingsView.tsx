@@ -1,63 +1,114 @@
 import React, { useState } from 'react';
 import {
-  User,
   ShieldCheck,
   Sliders,
   Database,
   Trash2,
   LogOut,
-  LogIn,
-  Check,
-  Sparkles,
-  Info,
-  Building,
-  Ruler,
+  Fingerprint,
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { AreaUnitControl } from '../components/AreaUnitControl';
+import { BiometricDialog } from '../components/BiometricDialog';
 
-export const AccountView: React.FC = () => {
+export const AccountSettingsView: React.FC = () => {
   const {
     user,
-    login,
     logout,
     displayUnit,
     setDisplayUnit,
     defaultInternalWallPercent,
     setDefaultInternalWallPercent,
-    defaultExternalWallPercent,
-    setDefaultExternalWallPercent,
     defaultLoadingPercent,
     setDefaultLoadingPercent,
     clearAllData,
     audits,
+    biometricEnabled,
+    setBiometricEnabled,
   } = useSession();
 
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const [nameInput, setNameInput] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isEnrollmentDialogOpen, setIsEnrollmentDialogOpen] = useState(false);
+  const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!emailInput.trim()) return;
-    login(emailInput.trim(), nameInput.trim() || undefined);
-    setIsLoginModalOpen(false);
-  };
-
-  const handleClearData = () => {
+  const handleClearData = async () => {
     if (
       window.confirm(
-        'Are you sure you want to delete all saved audits and floor plan records from local storage? This cannot be undone.'
+        'Are you sure you want to delete all saved audits and floor plan records from your account? This cannot be undone.'
       )
     ) {
-      clearAllData();
-      alert('All local audit records have been cleared.');
+      await clearAllData();
+      alert('All your audit records have been cleared.');
     }
   };
 
+  const handleSignOut = async () => {
+    if (window.confirm('Are you sure you want to sign out?')) {
+      await logout();
+    }
+  };
+
+  const handleToggleBiometric = () => {
+    if (biometricEnabled) {
+      setIsDisableDialogOpen(true);
+    } else {
+      setIsEnrollmentDialogOpen(true);
+    }
+  };
+
+  const handleConfirmEnable = () => {
+    setBiometricEnabled(true);
+    setIsEnrollmentDialogOpen(false);
+  };
+
+  const handleConfirmDisable = () => {
+    setBiometricEnabled(false);
+    setIsDisableDialogOpen(false);
+  };
+
   return (
-    <div className="max-w-4xl w-full mx-auto space-y-8 pb-16">
+    <div className="max-w-4xl w-full mx-auto space-y-8 pb-16 px-4 sm:px-0">
+      {/* Biometric Enrollment Dialog */}
+      <BiometricDialog
+        isOpen={isEnrollmentDialogOpen}
+        onClose={() => setIsEnrollmentDialogOpen(false)}
+        onVerify={handleConfirmEnable}
+        isEnrollment={true}
+        title="Enable Biometric Unlock"
+        description="Use your fingerprint or device biometrics to unlock Flatverify faster on this device. Your account will continue to use Firebase authentication."
+        confirmLabel="Enable"
+      />
+
+      {/* Biometric Disable Confirmation */}
+      {isDisableDialogOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[32px] w-full max-w-sm p-8 shadow-2xl space-y-6">
+            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto">
+              <Fingerprint className="w-8 h-8 text-red-600" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-xl font-extrabold text-[#172033]">Disable Biometric?</h3>
+              <p className="text-sm text-[#64748B] font-medium leading-relaxed">
+                You'll use your normal account access instead. This won't sign you out.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 pt-2">
+              <button
+                onClick={handleConfirmDisable}
+                className="w-full h-14 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-red-600/20 active:scale-[0.98] cursor-pointer"
+              >
+                Disable
+              </button>
+              <button
+                onClick={() => setIsDisableDialogOpen(false)}
+                className="w-full h-12 bg-slate-50 hover:bg-slate-100 text-[#64748B] font-bold rounded-2xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Page Title */}
       <div>
         <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">
@@ -72,51 +123,77 @@ export const AccountView: React.FC = () => {
       <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md shadow-blue-500/20">
-            {user.isGuest ? 'G' : user.displayName.charAt(0).toUpperCase()}
+            {user.displayName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base font-extrabold text-[#0F172A] truncate">
-                {user.isGuest ? 'Guest Session' : user.displayName}
+                {user.displayName}
               </h2>
               <span
-                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-                  user.isGuest
-                    ? 'bg-amber-100 text-amber-800'
-                    : 'bg-emerald-100 text-emerald-800'
-                }`}
+                className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800`}
               >
-                {user.isGuest ? 'Offline Guest' : 'Account Active'}
+                Account Active
               </span>
             </div>
-            <p className="text-xs text-[#64748B] mt-0.5">
-              {user.isGuest
-                ? 'Audits are stored locally on this device. Sign in to sync across devices.'
-                : user.email}
+            <p className="text-xs text-[#64748B] mt-0.5 truncate">
+              {user.email}
             </p>
           </div>
         </div>
 
         <div>
-          {user.isGuest ? (
-            <button
-              type="button"
-              onClick={() => setIsLoginModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <LogIn className="w-4 h-4" />
-              <span>Sign In / Create Account</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={logout}
-              className="px-4 py-2 bg-[#F1F5F9] hover:bg-red-50 text-[#64748B] hover:text-red-700 text-xs font-bold rounded-xl border border-[#E2E8F0] flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Switch to Guest</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-[#F1F5F9] hover:bg-red-50 text-[#64748B] hover:text-red-700 text-xs font-bold rounded-xl border border-[#E2E8F0] flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Security Section */}
+      <div className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs space-y-6">
+        <h2 className="text-base font-bold text-[#0F172A] pb-3 border-b border-[#F1F5F9] flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span>Security & Privacy</span>
+        </h2>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-blue-50 rounded-xl">
+              <Fingerprint className="w-5 h-5 text-[#2457D6]" />
+            </div>
+            <div className="pr-4">
+              <label className="block text-sm font-bold text-[#0F172A]">
+                Biometric Unlock
+              </label>
+              <p className="text-xs text-[#64748B] leading-relaxed">
+                Use your device biometrics to securely unlock Flatverify.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleToggleBiometric}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#2457D6] focus:ring-offset-2 ${
+              biometricEnabled ? 'bg-[#2457D6]' : 'bg-slate-200'
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                biometricEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+        
+        <div className="p-3 bg-blue-50/50 rounded-2xl border border-blue-100">
+          <p className="text-[11px] text-blue-800 leading-relaxed">
+            <strong>Device Specific:</strong> This setting applies only to this device. You will still need your account password to sign in on new devices.
+          </p>
         </div>
       </div>
 
@@ -219,16 +296,16 @@ export const AccountView: React.FC = () => {
       <div className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs space-y-4">
         <h2 className="text-base font-bold text-[#0F172A] pb-3 border-b border-[#F1F5F9] flex items-center gap-2">
           <Database className="w-4 h-4 text-gray-500" />
-          <span>Local Storage & Privacy</span>
+          <span>Cloud Storage & Privacy</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-xs font-bold text-[#0F172A]">
-              Saved Local Audits ({audits.length} Records)
+              Saved Account Audits ({audits.length} Records)
             </h3>
             <p className="text-xs text-[#64748B]">
-              All photos and blueprints are processed directly inside your browser. No images are transmitted to external ad trackers.
+              Your audits are securely stored in the cloud and accessible from any device.
             </p>
           </div>
 
@@ -238,72 +315,10 @@ export const AccountView: React.FC = () => {
             className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Local Storage</span>
+            <span>Clear Account Data</span>
           </button>
         </div>
       </div>
-
-      {/* Sign In Modal */}
-      {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-[#E2E8F0] overflow-hidden p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center gap-2.5 pb-2 border-b border-[#F1F5F9]">
-              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                <User className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="font-bold text-base text-[#0F172A]">Account Sign In</h3>
-                <p className="text-xs text-[#64748B]">Access and preserve your property audits</p>
-              </div>
-            </div>
-
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[#475569] mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={nameInput}
-                  onChange={e => setNameInput(e.target.value)}
-                  placeholder="e.g. Rahul Sharma"
-                  className="w-full bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-3 py-2 text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#475569] mb-1">
-                  Email Address <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={emailInput}
-                  onChange={e => setEmailInput(e.target.value)}
-                  placeholder="rahul@example.com"
-                  className="w-full bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-3 py-2 text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsLoginModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-[#64748B] hover:text-[#0F172A] rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs"
-                >
-                  Continue
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

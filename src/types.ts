@@ -76,6 +76,7 @@ export interface SavedRoomRecord {
 
 export interface PropertyAudit {
   id: string;
+  userId?: string;
   type: 'scan' | 'calculator';
   auditName: string;
   builder?: string;
