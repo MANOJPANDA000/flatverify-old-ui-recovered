@@ -120,6 +120,10 @@ export const CreateAccountView: React.FC<CreateAccountViewProps> = ({
         message = 'Invalid email address.';
       } else if (error.code === 'auth/weak-password') {
         message = 'The password is too weak.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        message = 'Email/password accounts are not enabled. Please contact support.';
+      } else {
+        message = `Registration failed: ${error.code || error.message}`;
       }
       
       setErrors(prev => ({ ...prev, general: message }));

@@ -71,12 +71,16 @@ export const SignInView: React.FC<SignInViewProps> = ({
       console.log('Signed in successfully');
     } catch (error: any) {
       console.error('Firebase Auth Error:', error);
-      let message = 'Invalid email or password.';
+      let message = 'An error occurred during sign in.';
       
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         message = 'Invalid email or password.';
       } else if (error.code === 'auth/too-many-requests') {
         message = 'Too many failed attempts. Please try again later.';
+      } else if (error.code === 'auth/network-request-failed') {
+        message = 'Network error. Please check your internet connection.';
+      } else {
+        message = `Sign in failed: ${error.code || error.message}`;
       }
       
       setErrors(prev => ({ ...prev, general: message }));

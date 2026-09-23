@@ -13,10 +13,12 @@ import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { BiometricUnlockView } from './views/BiometricUnlockView';
 import { PropertyDetailsView } from './views/PropertyDetailsView';
 import { BuilderAreaView } from './views/BuilderAreaView';
+import { YourMeasurementsView } from './views/YourMeasurementsView';
+import { ComparisonView } from './views/ComparisonView';
 
 export const AppContent: React.FC = () => {
   const { user, isInitializing, isLocked } = useSession();
-  const [activeTab, setActiveTab] = useState<NavTab>('welcome');
+  const [activeTab, setActiveTab] = useState<NavTab>('create_account');
 
   // Handle Initial State & Redirects
   useEffect(() => {
@@ -24,7 +26,7 @@ export const AppContent: React.FC = () => {
 
     if (user.isGuest) {
       // If we are currently in a "protected" view but user is guest, go to welcome
-      const protectedTabs: NavTab[] = ['home', 'calculator', 'scanner', 'audits', 'account', 'property_details', 'builder_area', 'your_measurements'];
+      const protectedTabs: NavTab[] = ['home', 'calculator', 'scanner', 'audits', 'account', 'property_details', 'builder_area', 'your_measurements', 'comparison'];
       if (protectedTabs.includes(activeTab)) {
         setActiveTab('welcome');
       }
@@ -51,7 +53,7 @@ export const AppContent: React.FC = () => {
   }
 
   const isAuthFlow = activeTab === 'welcome' || activeTab === 'create_account' || activeTab === 'sign_in' || activeTab === 'forgot_password';
-  const isWorkflow = activeTab === 'property_details' || activeTab === 'builder_area' || activeTab === 'your_measurements';
+  const isWorkflow = activeTab === 'property_details' || activeTab === 'builder_area' || activeTab === 'your_measurements' || activeTab === 'comparison';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FD] text-[#0F172A]">
@@ -107,16 +109,17 @@ export const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'your_measurements' && (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-            <h2 className="text-xl font-bold text-slate-600">Step 3: Your Measurements</h2>
-            <p className="text-sm mt-2">Placeholder for measurements entry.</p>
-            <button 
-              onClick={() => setActiveTab('builder_area')}
-              className="mt-8 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 font-bold transition-all"
-            >
-              Back to Builder Area
-            </button>
-          </div>
+          <YourMeasurementsView 
+            onBack={() => setActiveTab('builder_area')}
+            onContinue={() => setActiveTab('comparison')}
+          />
+        )}
+
+        {activeTab === 'comparison' && (
+          <ComparisonView 
+            onBack={() => setActiveTab('your_measurements')}
+            onContinue={() => setActiveTab('home')}
+          />
         )}
       </main>
 

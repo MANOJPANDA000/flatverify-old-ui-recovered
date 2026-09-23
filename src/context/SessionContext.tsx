@@ -58,7 +58,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
     path
   }
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  // DO NOT throw here, as it might crash the component tree or unhandled listener callbacks
 }
 
 interface SessionContextType {
