@@ -56,7 +56,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             size === '2xl' ? 'text-[28px] sm:text-[34px]' : 
             size === 'xl' ? 'text-[23px]' : 
             size === 'lg' ? 'text-[20px]' : 'text-[18px]'
-          } font-black tracking-tight text-[#172033]`}>
+          } font-bold tracking-tight text-[#172033]`}>
             Flatverify<span className="text-[#2457D6]">.ai</span>
           </span>
           <span className={`${
