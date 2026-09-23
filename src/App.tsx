@@ -7,13 +7,15 @@ import { ScannerView } from './views/ScannerView';
 import { AuditsView } from './views/AuditsView';
 import { AccountView } from './views/AccountView';
 import { WelcomeView } from './views/WelcomeView';
-import { SignUpPlaceholder, SignInPlaceholder } from './views/PlaceholderViews';
+import { CreateAccountView } from './views/CreateAccountView';
+import { SignInView } from './views/SignInView';
+import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { ShieldCheck, Ruler, FileText } from 'lucide-react';
 
 export const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<NavTab>('welcome');
+  const [activeTab, setActiveTab] = useState<NavTab>('forgot_password');
 
-  const isAuthFlow = activeTab === 'welcome' || activeTab === 'signup_placeholder' || activeTab === 'signin_placeholder';
+  const isAuthFlow = activeTab === 'welcome' || activeTab === 'create_account' || activeTab === 'sign_in' || activeTab === 'forgot_password';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FD] text-[#0F172A]">
@@ -24,12 +26,29 @@ export const AppContent: React.FC = () => {
       <main className={`${!isAuthFlow ? 'flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6' : 'flex-1'}`}>
         {activeTab === 'welcome' && (
           <WelcomeView 
-            onGetStarted={() => setActiveTab('signup_placeholder')}
-            onSignIn={() => setActiveTab('signin_placeholder')}
+            onGetStarted={() => setActiveTab('create_account')}
+            onSignIn={() => setActiveTab('sign_in')}
           />
         )}
-        {activeTab === 'signup_placeholder' && <SignUpPlaceholder onBack={() => setActiveTab('welcome')} />}
-        {activeTab === 'signin_placeholder' && <SignInPlaceholder onBack={() => setActiveTab('welcome')} />}
+        {activeTab === 'create_account' && (
+          <CreateAccountView 
+            onBack={() => setActiveTab('welcome')} 
+            onSignIn={() => setActiveTab('sign_in')}
+          />
+        )}
+        {activeTab === 'sign_in' && (
+          <SignInView 
+            onBack={() => setActiveTab('welcome')} 
+            onCreateAccount={() => setActiveTab('create_account')}
+            onForgotPassword={() => setActiveTab('forgot_password')}
+          />
+        )}
+        {activeTab === 'forgot_password' && (
+          <ForgotPasswordView 
+            onBack={() => setActiveTab('sign_in')} 
+            onSignIn={() => setActiveTab('sign_in')}
+          />
+        )}
         
         {activeTab === 'home' && <HomeView onNavigate={setActiveTab} />}
         {activeTab === 'calculator' && <CalculatorView />}

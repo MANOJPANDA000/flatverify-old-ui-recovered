@@ -11,7 +11,7 @@ import { BrandLogo } from './BrandLogo';
 import { AreaUnitControl } from './AreaUnitControl';
 import { useSession } from '../context/SessionContext';
 
-export type NavTab = 'welcome' | 'home' | 'calculator' | 'scanner' | 'audits' | 'account' | 'signup_placeholder' | 'signin_placeholder';
+export type NavTab = 'welcome' | 'home' | 'calculator' | 'scanner' | 'audits' | 'account' | 'signup_placeholder' | 'signin_placeholder' | 'create_account' | 'sign_in' | 'forgot_password';
 
 interface HeaderProps {
   activeTab: NavTab;

@@ -14,55 +14,73 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   const iconSize = size === 'sm' ? 28 : size === 'lg' ? 44 : size === 'xl' ? 56 : size === '2xl' ? 76 : 36;
 
   return (
-    <div className={`flex items-center gap-3 sm:gap-4 ${className}`}>
-      {/* Original App Logo matching favicon.svg */}
+    <div className={`flex items-center gap-4 ${className}`}>
+      {/* Brand Icon: 3D Faceted House + Checkmark matching uploaded reference */}
       <div
-        className="relative flex items-center justify-center shrink-0 drop-shadow-sm transition-transform group-hover:scale-105"
+        className="relative flex items-center justify-center shrink-0 drop-shadow-md transition-transform"
         style={{ width: iconSize, height: iconSize }}
       >
         <svg
-          viewBox="0 0 64 64"
+          viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full"
         >
-          <rect width="64" height="64" rx="16" fill="#1D4ED8" />
+          {/* Main House Shape with Facets */}
           <path
-            d="M16 44V20L32 12L48 20V44L32 52L16 44Z"
-            stroke="white"
-            strokeWidth="3.2"
+            d="M50 10L15 35V75L50 90L85 75V35L50 10Z"
+            fill="#2457D6"
+          />
+          {/* Top Left Facet (Highlight) */}
+          <path
+            d="M50 10L15 35L25 40L50 22V10Z"
+            fill="white"
+            fillOpacity="0.2"
+          />
+          {/* Bottom Right Facet (Shadow) */}
+          <path
+            d="M85 35V75L50 90V78L75 68V35L85 35Z"
+            fill="black"
+            fillOpacity="0.15"
+          />
+          
+          {/* Inner White Space */}
+          <path
+            d="M50 22L25 40V68L50 78L75 68V40L50 22Z"
+            fill="white"
+          />
+          
+          {/* Central Blue Checkmark */}
+          <path
+            d="M38 52L46 60L62 42"
+            stroke="#2457D6"
+            strokeWidth="8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <path
-            d="M32 12V52"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeDasharray="3 3"
-          />
-          <path
-            d="M16 28L48 28"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeDasharray="3 3"
-          />
-          <circle cx="32" cy="32" r="4.5" fill="#60A5FA" />
         </svg>
       </div>
 
       {showText && (
-        <div className="flex flex-col leading-none">
-          <span className={`${
-            size === '2xl' ? 'text-[28px] sm:text-[34px]' : 
-            size === 'xl' ? 'text-[23px]' : 
-            size === 'lg' ? 'text-[20px]' : 'text-[18px]'
-          } font-bold tracking-tight text-[#172033]`}>
-            Flatverify<span className="text-[#2457D6]">.ai</span>
-          </span>
+        <div className="flex flex-col leading-[1.1]">
+          <div className="flex items-baseline">
+            <span className={`${
+              size === '2xl' ? 'text-[30px] sm:text-[34px]' : 
+              size === 'xl' ? 'text-[24px]' : 'text-[20px]'
+            } font-[800] tracking-tight text-[#172033]`}>
+              Flatverify
+            </span>
+            <span className={`${
+              size === '2xl' ? 'text-[30px] sm:text-[34px]' : 
+              size === 'xl' ? 'text-[24px]' : 'text-[20px]'
+            } font-[800] tracking-tight text-[#2457D6]`}>
+              .ai
+            </span>
+          </div>
           <span className={`${
             size === '2xl' ? 'text-[15px] sm:text-[17px]' :
-            size === 'xl' ? 'text-[12px]' : 'text-[11px]'
-          } font-medium text-[#697386] tracking-tight mt-1 sm:mt-1.5`}>
+            size === 'xl' ? 'text-[13px]' : 'text-[12px]'
+          } font-medium text-[#697386] tracking-tight mt-0.5`}>
             Understand your property
           </span>
         </div>
