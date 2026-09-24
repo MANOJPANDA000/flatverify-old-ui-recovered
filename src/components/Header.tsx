@@ -31,7 +31,6 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
       icon: <FolderKanban className="w-4 h-4" />,
       badge: audits.length > 0 ? audits.length : undefined,
     },
-    { key: 'account', label: 'Settings', icon: <User className="w-4 h-4" /> },
   ];
 
   return (
@@ -68,15 +67,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             </div>
           </div>
 
-          {/* Row 2 (Mobile only): Unit Selector */}
-          <div className="flex sm:hidden w-full overflow-hidden">
-            <AreaUnitControl
-              value={displayUnit}
-              onChanged={setDisplayUnit}
-              size="md"
-              className="w-full"
-            />
-          </div>
+          {/* Row 2 (Mobile only): Unit Selector - Hidden on Dashboard */}
+          {activeTab !== 'home' && (
+            <div className="flex sm:hidden w-full overflow-hidden">
+              <AreaUnitControl
+                value={displayUnit}
+                onChanged={setDisplayUnit}
+                size="md"
+                className="w-full"
+              />
+            </div>
+          )}
 
           {/* Center Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-1 bg-[#F8FAFC] p-1 rounded-xl border border-[#E2E8F0]">
@@ -113,11 +114,13 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
 
           {/* Right Controls: Unit Toggle & User Status (Desktop/Tablet) */}
           <div className="hidden sm:flex items-center gap-3">
-            <AreaUnitControl
-              value={displayUnit}
-              onChanged={setDisplayUnit}
-              size="sm"
-            />
+            {activeTab !== 'home' && (
+              <AreaUnitControl
+                value={displayUnit}
+                onChanged={setDisplayUnit}
+                size="sm"
+              />
+            )}
 
             <button
               type="button"

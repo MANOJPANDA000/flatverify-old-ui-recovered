@@ -262,7 +262,26 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const logout = async () => {
-    await signOut(auth);
+    try {
+      console.log('SessionContext: logout starting...');
+      await signOut(auth);
+      console.log('SessionContext: Firebase signOut successful');
+      
+      // Explicitly clear local state in case onAuthStateChanged is delayed
+      setUser(DEFAULT_USER);
+      setAudits([]);
+      setVerificationDraft(null);
+      setIsLocked(false);
+      setBiometricEnabledState(false);
+    } catch (error) {
+      console.error('SessionContext: Sign Out Error:', error);
+      // Still clear local state on error to ensure user can "exit" the UI
+      setUser(DEFAULT_USER);
+      setAudits([]);
+      setVerificationDraft(null);
+      setIsLocked(false);
+      setBiometricEnabledState(false);
+    }
   };
 
   const clearAllData = async () => {

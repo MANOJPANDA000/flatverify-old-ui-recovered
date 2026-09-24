@@ -42,8 +42,10 @@ export const AccountSettingsView: React.FC = () => {
   };
 
   const handleSignOut = async () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
+    try {
       await logout();
+    } catch (error) {
+      console.error('AccountSettingsView: Logout failed', error);
     }
   };
 
