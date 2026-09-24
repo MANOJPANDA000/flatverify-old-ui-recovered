@@ -44,7 +44,7 @@ export const PropertyIllustration: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 1.2, duration: 0.6 }}
-            className="absolute right-[2%] top-[10%] bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl shadow-blue-900/10 p-3 sm:p-4 border border-white/50 flex flex-col gap-2 sm:gap-3 z-30 w-[115px] sm:w-[150px]"
+            className="absolute right-[2%] top-[44%] bg-white/25 backdrop-blur-sm rounded-2xl shadow-2xl shadow-blue-900/10 p-3 sm:p-4 border border-white/50 flex flex-col gap-2 sm:gap-3 z-30 w-[115px] sm:w-[150px]"
           >
             {/* Header Icon - Detailed Floorplan thumbnail */}
             <div className="w-full aspect-[16/9] bg-blue-50 rounded-xl border border-blue-100 flex items-center justify-center overflow-hidden mb-0 relative">
