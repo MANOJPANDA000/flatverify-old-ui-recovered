@@ -85,10 +85,12 @@ interface SessionContextType {
   setBiometricEnabled: (enabled: boolean) => void;
   verificationDraft: Partial<PropertyAudit> | null;
   setVerificationDraft: (draft: Partial<PropertyAudit> | null) => void;
+  setProfileAvatar: (avatarId: string | undefined) => void;
 }
 
 const SETTINGS_STORAGE_KEY = 'flatverify_settings_v2';
 const BIOMETRIC_PREF_KEY = 'flatverify_biometric_prefs';
+const AVATAR_PREF_KEY = 'flatverify_avatar_prefs';
 
 const DEFAULT_USER: UserProfile = {
   uid: 'guest_user',
@@ -142,16 +144,41 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (_) {}
   };
 
+  // Helper to get avatar preference for a specific user
+  const getAvatarPreference = (uid: string): string | undefined => {
+    try {
+      const prefs = JSON.parse(localStorage.getItem(AVATAR_PREF_KEY) || '{}');
+      return prefs[uid];
+    } catch (_) {
+      return undefined;
+    }
+  };
+
+  // Helper to set avatar preference for a specific user
+  const saveAvatarPreference = (uid: string, avatarId: string | undefined) => {
+    try {
+      const prefs = JSON.parse(localStorage.getItem(AVATAR_PREF_KEY) || '{}');
+      if (avatarId) {
+        prefs[uid] = avatarId;
+      } else {
+        delete prefs[uid];
+      }
+      localStorage.setItem(AVATAR_PREF_KEY, JSON.stringify(prefs));
+    } catch (_) {}
+  };
+
   // Handle Auth State Changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const newUser = {
+        const avatarId = getAvatarPreference(firebaseUser.uid);
+        const newUser: UserProfile = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
           displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
           isGuest: false,
           createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
+          avatarId,
         };
         
         setUser(newUser);
@@ -208,6 +235,12 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (user.isGuest) return;
     setBiometricEnabledState(enabled);
     saveBiometricPreference(user.uid, enabled);
+  };
+
+  const setProfileAvatar = (avatarId: string | undefined) => {
+    if (user.isGuest) return;
+    setUser(prev => ({ ...prev, avatarId }));
+    saveAvatarPreference(user.uid, avatarId);
   };
 
   const unlockApp = () => {
@@ -321,7 +354,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         biometricEnabled,
         setBiometricEnabled,
         verificationDraft,
-        setVerificationDraft
+        setVerificationDraft,
+        setProfileAvatar
       }}
     >
       {children}

@@ -6,10 +6,17 @@ import {
   Trash2,
   LogOut,
   Fingerprint,
+  Pencil,
+  Check,
+  X,
+  UserCircle,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useSession } from '../context/SessionContext';
 import { AreaUnitControl } from '../components/AreaUnitControl';
 import { BiometricDialog } from '../components/BiometricDialog';
+import { UserAvatar } from '../components/UserAvatar';
+import { BUILTIN_AVATARS } from '../data/avatars';
 
 export const AccountSettingsView: React.FC = () => {
   const {
@@ -25,10 +32,14 @@ export const AccountSettingsView: React.FC = () => {
     audits,
     biometricEnabled,
     setBiometricEnabled,
+    setProfileAvatar,
   } = useSession();
 
   const [isEnrollmentDialogOpen, setIsEnrollmentDialogOpen] = useState(false);
   const [isDisableDialogOpen, setIsDisableDialogOpen] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [avatarView, setAvatarView] = useState<'menu' | 'grid'>('menu');
+  const [pendingAvatarId, setPendingAvatarId] = useState<string | undefined>(user.avatarId);
 
   const handleClearData = async () => {
     if (
@@ -67,8 +78,167 @@ export const AccountSettingsView: React.FC = () => {
     setIsDisableDialogOpen(false);
   };
 
+  const handleOpenAvatarModal = () => {
+    setAvatarView('menu');
+    setPendingAvatarId(user.avatarId);
+    setIsAvatarModalOpen(true);
+  };
+
+  const handleSaveAvatar = () => {
+    setProfileAvatar(pendingAvatarId);
+    setIsAvatarModalOpen(false);
+  };
+
+  const handleRemovePhoto = () => {
+    setProfileAvatar(undefined);
+    setIsAvatarModalOpen(false);
+  };
+
   return (
     <div className="max-w-4xl w-full mx-auto space-y-8 pb-16 px-4 sm:px-0">
+      {/* Avatar Selection Modal / Bottom Sheet */}
+      <AnimatePresence>
+        {isAvatarModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-[2px]">
+            <motion.div 
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="bg-white rounded-t-[32px] sm:rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl flex flex-col"
+            >
+              {avatarView === 'menu' ? (
+                <div className="flex flex-col">
+                  {/* Header */}
+                  <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+                    <h3 className="text-base font-bold text-[#172033]">Change profile picture</h3>
+                    <button 
+                      onClick={() => setIsAvatarModalOpen(false)}
+                      className="p-1 hover:bg-slate-50 rounded-full transition-colors"
+                    >
+                      <X className="w-4 h-4 text-[#64748B]" />
+                    </button>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="py-2">
+                    <button 
+                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group opacity-50 cursor-not-allowed text-left"
+                      disabled
+                    >
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+                        <UserCircle className="w-5 h-5 text-slate-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-[#172033]">Upload Photo</p>
+                        <p className="text-[10px] font-medium text-blue-600">Coming soon</p>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setAvatarView('grid')}
+                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <UserCircle className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-bold text-[#172033]">Choose Avatar</p>
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        setProfileAvatar(undefined);
+                        setIsAvatarModalOpen(false);
+                      }}
+                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                        <Check className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <p className="text-sm font-bold text-[#172033]">Use Initials</p>
+                    </button>
+
+                    <button 
+                      onClick={handleRemovePhoto}
+                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </div>
+                      <p className="text-sm font-bold text-[#172033]">Remove Photo</p>
+                    </button>
+                  </div>
+
+                  <div className="p-4 sm:hidden">
+                    <button 
+                      onClick={() => setIsAvatarModalOpen(false)}
+                      className="w-full h-12 bg-slate-50 text-[#64748B] font-bold rounded-xl"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  {/* Header */}
+                  <div className="px-6 py-5 border-b border-slate-50 flex items-center justify-between">
+                    <h3 className="text-base font-bold text-[#172033]">Choose Avatar</h3>
+                    <button 
+                      onClick={() => setAvatarView('menu')}
+                      className="p-1 hover:bg-slate-50 rounded-full transition-colors"
+                    >
+                      <X className="w-4 h-4 text-[#64748B]" />
+                    </button>
+                  </div>
+
+                  {/* Grid */}
+                  <div className="p-6">
+                    <div className="grid grid-cols-4 gap-3">
+                      {BUILTIN_AVATARS.map((avatar) => {
+                        const Icon = avatar.icon;
+                        const isSelected = pendingAvatarId === avatar.id;
+                        return (
+                          <button
+                            key={avatar.id}
+                            onClick={() => setPendingAvatarId(avatar.id)}
+                            className={`relative aspect-square flex items-center justify-center rounded-2xl transition-all hover:scale-105 active:scale-95 group cursor-pointer ${
+                              isSelected ? 'ring-2 ring-blue-600 ring-offset-2' : ''
+                            }`}
+                            style={{ backgroundColor: avatar.color }}
+                          >
+                            <Icon className="w-5 h-5 text-white" />
+                            {isSelected && (
+                              <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-0.5 shadow-sm">
+                                <Check className="w-2.5 h-2.5" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                    <button
+                      onClick={handleSaveAvatar}
+                      className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all cursor-pointer"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setAvatarView('menu')}
+                      className="flex-1 h-12 bg-white border border-slate-200 hover:bg-slate-50 text-[#64748B] font-bold rounded-xl transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Biometric Enrollment Dialog */}
       <BiometricDialog
         isOpen={isEnrollmentDialogOpen}
@@ -124,8 +294,19 @@ export const AccountSettingsView: React.FC = () => {
       {/* User Profile Card */}
       <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#E2E8F0] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 font-black text-xl shadow-md shadow-blue-500/20">
-            {user.displayName.charAt(0).toUpperCase()}
+          <div className="relative group shrink-0">
+            <UserAvatar 
+              size="lg" 
+              className="cursor-pointer hover:scale-105 active:scale-95" 
+              avatarId={user.avatarId}
+              displayName={user.displayName}
+            />
+            <button 
+              onClick={handleOpenAvatarModal}
+              className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

@@ -123,51 +123,28 @@ export const AppContent: React.FC = () => {
         )}
       </main>
 
-      {/* Footer - Only shown if NOT in auth flow */}
-      {!isAuthFlow && (
-        <footer className="bg-white border-t border-[#E2E8F0] py-8 mt-auto w-full">
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#64748B]">
+      {/* Simplified Minimal Footer */}
+      <footer className="bg-white border-t border-[#E2E8F0] py-6 mt-auto w-full">
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#64748B]">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-[#0F172A]">Flatverify.ai</span>
-            <span>•</span>
-            <span className="font-semibold text-blue-700">Understand your property</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">RERA Property Carpet Area & Blueprint Verification</span>
+            <span className="text-[#E2E8F0]">•</span>
+            <span className="font-medium">Understand your property</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => setActiveTab('calculator')}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Calculator
-            </button>
-            <button
-              onClick={() => setActiveTab('scanner')}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Blueprint Scanner
-            </button>
-            <button
-              onClick={() => setActiveTab('audits')}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Saved Audits
-            </button>
-            <button
-              onClick={() => setActiveTab('account')}
-              className="hover:text-blue-600 transition-colors"
-            >
-              Settings
-            </button>
+          <div className="flex items-center gap-4">
+            <button className="hover:text-blue-600 transition-colors cursor-pointer">Privacy</button>
+            <span className="text-[#E2E8F0]">•</span>
+            <button className="hover:text-blue-600 transition-colors cursor-pointer">Terms</button>
+            <span className="text-[#E2E8F0]">•</span>
+            <button className="hover:text-blue-600 transition-colors cursor-pointer">Help</button>
           </div>
 
-          <div>
-            © {new Date().getFullYear()} Flatverify.ai. All rights reserved.
+          <div className="font-medium">
+            © 2026 Flatverify.ai
           </div>
         </div>
       </footer>
-      )}
     </div>
   );
 };

@@ -8,8 +8,8 @@ import {
   User,
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { AreaUnitControl } from './AreaUnitControl';
 import { useSession } from '../context/SessionContext';
+import { UserAvatar } from './UserAvatar';
 
 export type NavTab = 'welcome' | 'home' | 'calculator' | 'scanner' | 'audits' | 'account' | 'signup_placeholder' | 'signin_placeholder' | 'create_account' | 'sign_in' | 'forgot_password' | 'property_details' | 'builder_area' | 'your_measurements' | 'comparison';
 
@@ -52,32 +52,18 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
               <button
                 type="button"
                 onClick={() => onTabChange('account')}
-                className={`p-2 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-                  activeTab === 'account'
-                    ? 'bg-blue-50 border-blue-200 text-blue-800'
-                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
-                }`}
+                className="p-1 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
               >
                 {user.isGuest ? (
                   <User className="w-5 h-5 text-[#94A3B8]" />
                 ) : (
-                  <UserCheck className="w-5 h-5 text-blue-600" />
+                  <UserAvatar size="md" />
                 )}
               </button>
             </div>
           </div>
 
-          {/* Row 2 (Mobile only): Unit Selector - Hidden on Dashboard */}
-          {activeTab !== 'home' && (
-            <div className="flex sm:hidden w-full overflow-hidden">
-              <AreaUnitControl
-                value={displayUnit}
-                onChanged={setDisplayUnit}
-                size="md"
-                className="w-full"
-              />
-            </div>
-          )}
+
 
           {/* Center Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-1 bg-[#F8FAFC] p-1 rounded-xl border border-[#E2E8F0]">
@@ -112,33 +98,18 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             })}
           </nav>
 
-          {/* Right Controls: Unit Toggle & User Status (Desktop/Tablet) */}
+          {/* Right Controls: User Status (Desktop/Tablet) */}
           <div className="hidden sm:flex items-center gap-3">
-            {activeTab !== 'home' && (
-              <AreaUnitControl
-                value={displayUnit}
-                onChanged={setDisplayUnit}
-                size="sm"
-              />
-            )}
-
             <button
               type="button"
               onClick={() => onTabChange('account')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-                user.isGuest
-                  ? 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B] hover:border-gray-400'
-                  : 'bg-blue-50 border-blue-200 text-blue-800'
-              } ${activeTab === 'account' ? 'ring-2 ring-blue-500 border-blue-500' : ''}`}
+              className="p-1 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
             >
               {user.isGuest ? (
-                <User className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <User className="w-5 h-5 text-[#94A3B8]" />
               ) : (
-                <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                <UserAvatar size="sm" />
               )}
-              <span className="hidden lg:inline">
-                {user.isGuest ? 'Guest Mode' : user.displayName}
-              </span>
             </button>
           </div>
         </div>

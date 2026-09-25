@@ -133,6 +133,7 @@ export interface UserProfile {
   displayName: string;
   isGuest: boolean;
   createdAt: string;
+  avatarId?: string;
 }
 
 export interface PlanTextLine {
