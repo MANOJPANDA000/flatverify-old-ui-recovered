@@ -260,7 +260,8 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
               <div className="w-3/5 h-full bg-[#2457D6] rounded-full" />
             </div>
           </div>
-          <h1 className="text-2xl font-black text-[#172033] tracking-tight">Your Measurements</h1>
+          <h1 className="text-2xl font-black text-[#172033] tracking-tight">Measure Your Home</h1>
+          <p className="text-sm text-[#64748B] font-medium mt-1">Add the size of each room.</p>
         </div>
       </div>
 
@@ -309,26 +310,17 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Summary Banner */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Simple Summary Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div>
-              <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Measurement Summary</h3>
-              <div className="flex items-center gap-3 mt-1">
-                <span className="text-xs font-bold text-[#64748B]">{rooms.length} Rooms total</span>
-                <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                <span className="text-xs font-bold text-emerald-600">{verifiedCount} Verified</span>
-                {unverifiedCount > 0 && (
-                  <>
-                    <div className="w-1 h-1 bg-slate-300 rounded-full" />
-                    <span className="text-xs font-bold text-amber-600">{unverifiedCount} Review required</span>
-                  </>
-                )}
-              </div>
+              <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Your measurements</h3>
+              <p className="text-xs font-bold text-[#64748B] mt-0.5">
+                {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} added
+              </p>
             </div>
-            <div className="text-right">
-              <div className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Measured Usable Area</div>
+            <div className="sm:text-right">
               <div className="text-xl font-black text-[#2457D6]">
-                {DimensionParser.formatArea(totalUsableSqFt, displayUnit)}
+                {DimensionParser.formatArea(totalUsableSqFt, displayUnit)} <span className="text-xs uppercase tracking-tight font-black">total</span>
               </div>
             </div>
           </div>
@@ -336,14 +328,14 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
           {unverifiedCount > 0 && (
             <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center gap-3 text-amber-800 text-xs font-bold">
               <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>Some detected measurements still need your review.</span>
+              <span>Some scanned measurements need to be checked.</span>
             </div>
           )}
 
           {/* Room Lists */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black text-[#64748B] uppercase tracking-widest">Room List</h2>
+              <h2 className="text-xs font-black text-[#64748B] uppercase tracking-widest">Rooms</h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsAddIndividualModalOpen(true)}
@@ -357,7 +349,7 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
                   className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-[11px] rounded-xl flex items-center gap-1.5 border border-slate-200 transition-colors"
                 >
                   <Scan className="w-3.5 h-3.5" />
-                  <span>Scan More</span>
+                  <span>Scan Floor Plan</span>
                 </button>
               </div>
             </div>
