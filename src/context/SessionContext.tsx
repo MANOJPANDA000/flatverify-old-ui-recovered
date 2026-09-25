@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signOut, User, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { 
   collection, 
   query, 
@@ -9,7 +9,8 @@ import {
   deleteDoc, 
   getDocs,
   serverTimestamp,
-  orderBy
+  orderBy,
+  getDoc
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AreaDisplayUnit, PropertyAudit, UserProfile } from '../types';
@@ -76,6 +77,7 @@ interface SessionContextType {
   deleteAudit: (id: string) => Promise<boolean>;
   getAudit: (id: string) => PropertyAudit | undefined;
   logout: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   clearAllData: () => Promise<void>;
   isInitializing: boolean;
   // Biometric/Local Lock Architecture
@@ -179,6 +181,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           isGuest: false,
           createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
           avatarId,
+          photoURL: firebaseUser.photoURL || undefined,
         };
         
         setUser(newUser);
@@ -317,6 +320,35 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+      
+      // Check if user profile already exists in Firestore
+      const userRef = doc(db, 'users', firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        // Create initial profile for first-time Google user
+        await setDoc(userRef, {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          createdAt: serverTimestamp(),
+          isGoogleUser: true
+        });
+      }
+    } catch (error: any) {
+      // Re-throw so the UI can handle cancellation or specific errors
+      if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error('Sign-in cancelled.');
+      }
+      throw error;
+    }
+  };
+
   const clearAllData = async () => {
     if (user.isGuest) return;
     
@@ -347,6 +379,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deleteAudit,
         getAudit,
         logout,
+        signInWithGoogle,
         clearAllData,
         isInitializing,
         isLocked,

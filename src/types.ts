@@ -134,6 +134,7 @@ export interface UserProfile {
   isGuest: boolean;
   createdAt: string;
   avatarId?: string;
+  photoURL?: string;
 }
 
 export interface PlanTextLine {

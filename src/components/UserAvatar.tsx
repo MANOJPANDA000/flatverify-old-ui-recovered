@@ -20,6 +20,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   // Use props if provided, otherwise fall back to session user
   const avatarId = propAvatarId !== undefined ? propAvatarId : user.avatarId;
   const displayName = propDisplayName !== undefined ? propDisplayName : user.displayName;
+  const photoURL = user.photoURL;
   
   const initials = displayName
     .split(' ')
@@ -45,11 +46,12 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     xl: 'w-10 h-10',
   };
 
+  // PRIORITY 1: User-selected custom/built-in avatar
   if (selectedAvatar) {
     const Icon = selectedAvatar.icon;
     return (
       <div 
-        className={`${sizeClasses[size]} flex items-center justify-center shrink-0 text-white shadow-md transition-transform ${className}`}
+        className={`${sizeClasses[size]} flex items-center justify-center shrink-0 text-white transition-transform ${className}`}
         style={{ backgroundColor: selectedAvatar.color }}
       >
         <Icon className={iconSizes[size]} />
@@ -57,8 +59,23 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
     );
   }
 
+  // PRIORITY 2: Google/Firebase photoURL if available and NOT explicitly choosing initials
+  if (photoURL && avatarId !== 'initials') {
+    return (
+      <div className={`${sizeClasses[size]} shrink-0 overflow-hidden shadow-md ${className}`}>
+        <img 
+          src={photoURL} 
+          alt={displayName} 
+          className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+    );
+  }
+
+  // PRIORITY 3: User initials fallback
   return (
-    <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 font-black shadow-md shadow-blue-500/20 ${className}`}>
+    <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 font-black ${className}`}>
       {initials || '?'}
     </div>
   );

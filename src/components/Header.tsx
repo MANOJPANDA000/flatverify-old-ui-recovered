@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
               <button
                 type="button"
                 onClick={() => onTabChange('account')}
-                className="p-1 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+                className="flex items-center justify-center transition-transform active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 {user.isGuest ? (
                   <User className="w-5 h-5 text-[#94A3B8]" />
@@ -62,8 +62,6 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
               </button>
             </div>
           </div>
-
-
 
           {/* Center Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-1 bg-[#F8FAFC] p-1 rounded-xl border border-[#E2E8F0]">
@@ -99,11 +97,11 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
           </nav>
 
           {/* Right Controls: User Status (Desktop/Tablet) */}
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center">
             <button
               type="button"
               onClick={() => onTabChange('account')}
-              className="p-1 transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+              className="flex items-center justify-center transition-transform active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               {user.isGuest ? (
                 <User className="w-5 h-5 text-[#94A3B8]" />

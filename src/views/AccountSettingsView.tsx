@@ -89,11 +89,6 @@ export const AccountSettingsView: React.FC = () => {
     setIsAvatarModalOpen(false);
   };
 
-  const handleRemovePhoto = () => {
-    setProfileAvatar(undefined);
-    setIsAvatarModalOpen(false);
-  };
-
   return (
     <div className="max-w-4xl w-full mx-auto space-y-8 pb-16 px-4 sm:px-0">
       {/* Avatar Selection Modal / Bottom Sheet */}
@@ -121,18 +116,20 @@ export const AccountSettingsView: React.FC = () => {
 
                   {/* Actions */}
                   <div className="py-2">
-                    <button 
-                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group opacity-50 cursor-not-allowed text-left"
-                      disabled
-                    >
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                        <UserCircle className="w-5 h-5 text-slate-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#172033]">Upload Photo</p>
-                        <p className="text-[10px] font-medium text-blue-600">Coming soon</p>
-                      </div>
-                    </button>
+                    {user.photoURL && (
+                      <button 
+                        onClick={() => {
+                          setProfileAvatar(undefined);
+                          setIsAvatarModalOpen(false);
+                        }}
+                        className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden">
+                          <img src={user.photoURL} alt="Google" className="w-full h-full object-cover" />
+                        </div>
+                        <p className="text-sm font-bold text-[#172033]">Use Google Photo</p>
+                      </button>
+                    )}
 
                     <button 
                       onClick={() => setAvatarView('grid')}
@@ -146,25 +143,15 @@ export const AccountSettingsView: React.FC = () => {
 
                     <button 
                       onClick={() => {
-                        setProfileAvatar(undefined);
+                        setProfileAvatar('initials');
                         setIsAvatarModalOpen(false);
                       }}
                       className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
                     >
-                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
-                        <Check className="w-5 h-5 text-indigo-600" />
+                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-black text-indigo-600 text-sm">
+                        {user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <p className="text-sm font-bold text-[#172033]">Use Initials</p>
-                    </button>
-
-                    <button 
-                      onClick={handleRemovePhoto}
-                      className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors group text-left cursor-pointer"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                        <Trash2 className="w-5 h-5 text-red-600" />
-                      </div>
-                      <p className="text-sm font-bold text-[#172033]">Remove Photo</p>
                     </button>
                   </div>
 
@@ -479,27 +466,24 @@ export const AccountSettingsView: React.FC = () => {
       <div className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs space-y-4">
         <h2 className="text-base font-bold text-[#0F172A] pb-3 border-b border-[#F1F5F9] flex items-center gap-2">
           <Database className="w-4 h-4 text-gray-500" />
-          <span>Cloud Storage & Privacy</span>
+          <span>Your Data & Privacy</span>
         </h2>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="text-xs font-bold text-[#0F172A]">
-              Saved Account Audits ({audits.length} Records)
+              Your Saved Checks
             </h3>
-            <p className="text-xs text-[#64748B]">
-              Your audits are securely stored in the cloud and accessible from any device.
-            </p>
+            {audits.length > 0 ? (
+              <p className="text-xs text-[#64748B]">
+                {audits.length} {audits.length === 1 ? 'saved property' : 'saved properties'}
+              </p>
+            ) : (
+              <p className="text-xs text-[#64748B]">
+                Your saved property checks will appear here.
+              </p>
+            )}
           </div>
-
-          <button
-            type="button"
-            onClick={handleClearData}
-            className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl border border-red-200 flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Clear Account Data</span>
-          </button>
         </div>
       </div>
     </div>
