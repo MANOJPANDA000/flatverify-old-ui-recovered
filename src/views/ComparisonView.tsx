@@ -18,7 +18,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ onBack, onContin
           <div className="p-1.5 rounded-lg group-hover:bg-slate-100 transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </div>
-          <span className="text-sm font-bold tracking-tight">Your Measurements</span>
+          <span className="text-sm font-bold tracking-tight">Back</span>
         </button>
 
         <div className="space-y-1">

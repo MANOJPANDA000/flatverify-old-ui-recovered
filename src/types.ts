@@ -74,6 +74,12 @@ export interface SavedRoomRecord {
   spaceType?: RoomSpaceType;
 }
 
+export interface BuilderOtherArea {
+  type: 'Balcony' | 'Utility' | 'Terrace' | 'Private Garden' | 'Other';
+  name?: string;
+  value: number; // in sq ft
+}
+
 export interface PropertyAudit {
   id: string;
   userId?: string;
@@ -122,7 +128,10 @@ export interface PropertyAudit {
   builderOtherAreaName?: string;
   builderOtherAreaValue?: number;
   builderBalconyArea?: number;
+  builderOtherAreas?: BuilderOtherArea[];
   builderLoadingPercent?: number;
+  builderLoadingType?: 'none' | 'percentage' | 'fixed';
+  builderLoadingArea?: number;
   builderAreaSources?: string[];
   builderAreaReference?: string;
 }

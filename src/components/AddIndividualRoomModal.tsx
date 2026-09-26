@@ -193,10 +193,10 @@ export const AddIndividualRoomModal: React.FC<AddIndividualRoomModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-base text-[#0F172A]">
-                Add Individual Room
+                Add Room
               </h3>
               <p className="text-xs text-[#64748B]">
-                Enter room dimensions to aggregate into carpet area
+                Enter the size of the room.
               </p>
             </div>
           </div>
@@ -248,7 +248,7 @@ export const AddIndividualRoomModal: React.FC<AddIndividualRoomModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-[#475569] uppercase tracking-wide">
-                Room Designation / Name
+                Room Name *
               </label>
               <button
                 type="button"
@@ -344,7 +344,7 @@ export const AddIndividualRoomModal: React.FC<AddIndividualRoomModalProps> = ({
             {/* Length */}
             <div>
               <label className="block text-xs font-bold text-[#475569] mb-1 uppercase tracking-wide">
-                Length
+                Length *
               </label>
               {unit === 'feetInches' && (
                 <div className="grid grid-cols-2 gap-2">
@@ -431,7 +431,7 @@ export const AddIndividualRoomModal: React.FC<AddIndividualRoomModalProps> = ({
             {/* Width */}
             <div>
               <label className="block text-xs font-bold text-[#475569] mb-1 uppercase tracking-wide">
-                Width
+                Width *
               </label>
               {unit === 'feetInches' && (
                 <div className="grid grid-cols-2 gap-2">

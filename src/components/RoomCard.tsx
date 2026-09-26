@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, ChevronDown, Check, Ruler, Copy, ArrowUp, ArrowDown, Building2, HelpCircle } from 'lucide-react';
+import { Trash2, ChevronDown, Check, Ruler, Copy, ArrowUp, ArrowDown, Building2, HelpCircle, Info } from 'lucide-react';
 import { DimensionUnit, RoomData, AreaDisplayUnit, RoomSpaceType, inferRoomSpaceType } from '../types';
 import { DimensionParser } from '../utils/dimensionParser';
 import { ROOM_CATEGORIES, CUSTOM_ROOM_OPTION } from '../data/roomCategories';

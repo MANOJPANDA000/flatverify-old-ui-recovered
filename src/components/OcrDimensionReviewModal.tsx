@@ -70,7 +70,7 @@ export const OcrDimensionReviewModal: React.FC<OcrDimensionReviewModalProps> = (
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-[#0F172A]">Review Extracted Blueprint Dimensions</h3>
+              <h3 className="font-bold text-base text-[#0F172A]">Review Measurements</h3>
               <p className="text-xs text-[#64748B]">Verify room labels & detected dimension pairs</p>
             </div>
           </div>
@@ -103,7 +103,7 @@ export const OcrDimensionReviewModal: React.FC<OcrDimensionReviewModalProps> = (
                 className="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-emerald-200 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Add Dimension
+                Add Missing Room
               </button>
             </div>
           </div>

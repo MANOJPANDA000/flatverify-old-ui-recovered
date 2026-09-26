@@ -10,8 +10,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
-import { PropertyAudit, AreaDisplayUnit } from '../types';
+import { PropertyAudit, AreaDisplayUnit, BuilderOtherArea } from '../types';
 import { DimensionParser } from '../utils/dimensionParser';
+import { Plus, X } from 'lucide-react';
 
 interface BuilderAreaViewProps {
   onBack: () => void;
@@ -49,13 +50,47 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
     carpetArea: toDisplay(verificationDraft?.builderCarpetArea),
     builtUpArea: toDisplay(verificationDraft?.builderBuiltUpArea),
     superBuiltUpArea: toDisplay(verificationDraft?.builderSuperBuiltUpArea),
-    otherAreaName: verificationDraft?.builderOtherAreaName || '',
-    otherAreaValue: toDisplay(verificationDraft?.builderOtherAreaValue),
-    balconyArea: toDisplay(verificationDraft?.builderBalconyArea),
+    otherAreas: (verificationDraft?.builderOtherAreas || []).map(oa => ({
+      type: oa.type,
+      name: oa.name || '',
+      value: toDisplay(oa.value)
+    })),
+    loadingType: verificationDraft?.builderLoadingType || 'none',
     loadingPercent: verificationDraft?.builderLoadingPercent?.toString() || '',
+    loadingArea: toDisplay(verificationDraft?.builderLoadingArea),
     sources: verificationDraft?.builderAreaSources || [] as string[],
     reference: verificationDraft?.builderAreaReference || ''
   });
+
+  // Migrating old fields to otherAreas if needed on first load
+  useEffect(() => {
+    if (!verificationDraft?.builderOtherAreas && (verificationDraft?.builderBalconyArea || verificationDraft?.builderOtherAreaValue)) {
+      const migrated: { type: any, name: string, value: string }[] = [];
+      
+      if (verificationDraft.builderBalconyArea) {
+        migrated.push({
+          type: 'Balcony',
+          name: '',
+          value: toDisplay(verificationDraft.builderBalconyArea)
+        });
+      }
+      
+      if (verificationDraft.builderOtherAreaValue) {
+        migrated.push({
+          type: 'Other',
+          name: verificationDraft.builderOtherAreaName || '',
+          value: toDisplay(verificationDraft.builderOtherAreaValue)
+        });
+      }
+
+      if (migrated.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          otherAreas: [...prev.otherAreas, ...migrated]
+        }));
+      }
+    }
+  }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -78,10 +113,16 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
       builderCarpetArea: toSqFt(formData.carpetArea),
       builderBuiltUpArea: toSqFt(formData.builtUpArea),
       builderSuperBuiltUpArea: toSqFt(formData.superBuiltUpArea),
-      builderOtherAreaName: formData.otherAreaName,
-      builderOtherAreaValue: toSqFt(formData.otherAreaValue),
-      builderBalconyArea: toSqFt(formData.balconyArea),
-      builderLoadingPercent: formData.loadingPercent ? parseFloat(formData.loadingPercent) : undefined,
+      builderOtherAreas: formData.otherAreas
+        .filter(oa => oa.value && !isNaN(parseFloat(oa.value)))
+        .map(oa => ({
+          type: oa.type as any,
+          name: oa.type === 'Other' ? oa.name : undefined,
+          value: toSqFt(oa.value) || 0
+        })),
+      builderLoadingType: formData.loadingType as any,
+      builderLoadingPercent: formData.loadingType === 'percentage' && formData.loadingPercent ? parseFloat(formData.loadingPercent) : undefined,
+      builderLoadingArea: formData.loadingType === 'fixed' ? toSqFt(formData.loadingArea) : undefined,
       builderAreaSources: formData.sources,
       builderAreaReference: formData.reference
     });
@@ -93,18 +134,25 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
     const carpet = parseFloat(formData.carpetArea);
     const builtUp = parseFloat(formData.builtUpArea);
     const superBuiltUp = parseFloat(formData.superBuiltUpArea);
-    const otherVal = parseFloat(formData.otherAreaValue);
+    const hasOtherArea = formData.otherAreas.some(oa => parseFloat(oa.value) > 0);
 
-    const hasOneArea = (carpet > 0) || (builtUp > 0) || (superBuiltUp > 0) || (otherVal > 0);
+    const hasOneArea = (carpet > 0) || (builtUp > 0) || (superBuiltUp > 0) || hasOtherArea;
 
     if (!hasOneArea) {
-      newErrors.general = 'At least one builder area figure must be entered.';
+      newErrors.general = 'Enter at least one area.';
     }
 
-    if (formData.loadingPercent) {
+    if (formData.loadingType === 'percentage' && formData.loadingPercent) {
       const loading = parseFloat(formData.loadingPercent);
       if (isNaN(loading) || loading < 0 || loading > 100) {
         newErrors.loadingPercent = 'Loading must be between 0 and 100%';
+      }
+    }
+
+    if (formData.loadingType === 'fixed' && formData.loadingArea) {
+      const loadingArea = parseFloat(formData.loadingArea);
+      if (isNaN(loadingArea) || loadingArea < 0) {
+        newErrors.loadingArea = 'Invalid loading area';
       }
     }
 
@@ -116,6 +164,27 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
     if (validate()) {
       onContinue();
     }
+  };
+
+  const addOtherArea = () => {
+    setFormData(prev => ({
+      ...prev,
+      otherAreas: [...prev.otherAreas, { type: 'Balcony' as const, name: '', value: '' }]
+    }));
+  };
+
+  const removeOtherArea = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      otherAreas: prev.otherAreas.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateOtherArea = (index: number, updates: Partial<{ type: any, name: string, value: string }>) => {
+    setFormData(prev => ({
+      ...prev,
+      otherAreas: prev.otherAreas.map((oa, i) => i === index ? { ...oa, ...updates } : oa)
+    }));
   };
 
   const toggleSource = (source: string) => {
@@ -151,7 +220,7 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
           <div className="p-1.5 rounded-lg group-hover:bg-slate-100 transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </div>
-          <span className="text-sm font-bold tracking-tight">Property Details</span>
+          <span className="text-sm font-bold tracking-tight">Back</span>
         </button>
 
         <div className="space-y-1">
@@ -161,15 +230,18 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
               <div className="w-2/5 h-full bg-[#2457D6] rounded-full" />
             </div>
           </div>
-          <h1 className="text-2xl font-black text-[#172033] tracking-tight">Builder-Stated Area</h1>
+          <h1 className="text-2xl font-black text-[#172033] tracking-tight">Builder's Area</h1>
         </div>
       </div>
 
       {/* Main Heading */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold text-[#172033]">What area has the builder stated?</h2>
+        <h2 className="text-xl font-bold text-[#172033]">Builder's Area</h2>
         <p className="text-sm text-[#697386] mt-1 leading-relaxed">
-          Enter the area figures shown in the builder's brochure, cost sheet, agreement, floor plan or other documents.
+          Enter the area details shown in the builder's documents.
+        </p>
+        <p className="text-sm text-[#2457D6] font-bold mt-2">
+          Enter at least one area.
         </p>
       </div>
 
@@ -192,7 +264,7 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
         <div className="grid grid-cols-1 gap-6">
           {/* Carpet Area */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#172033]">Builder-Stated Carpet Area</label>
+            <label className="block text-sm font-bold text-[#172033]">Carpet Area</label>
             <div className="relative">
               <input 
                 type="number" 
@@ -206,12 +278,12 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
               </div>
             </div>
             <DualEquivalent value={formData.carpetArea} />
-            <p className="text-[11px] text-[#64748B] font-medium italic mt-1">Enter the carpet area stated in the builder's documents.</p>
+            <p className="text-[11px] text-[#64748B] font-medium italic mt-1">Enter the carpet area stated in the documents.</p>
           </div>
 
           {/* Built-up Area */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#172033]">Builder-Stated Built-Up Area <span className="text-slate-400 font-normal">(Optional)</span></label>
+            <label className="block text-sm font-bold text-[#172033]">Built-Up Area</label>
             <div className="relative">
               <input 
                 type="number" 
@@ -225,12 +297,12 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
               </div>
             </div>
             <DualEquivalent value={formData.builtUpArea} />
-            <p className="text-[11px] text-[#64748B] font-medium italic mt-1">Enter this only if the builder has provided it.</p>
+            <p className="text-[11px] text-[#64748B] font-medium italic mt-1">Enter this only if provided.</p>
           </div>
 
           {/* Super Built-up Area */}
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#172033]">Builder-Stated Super Built-Up Area <span className="text-slate-400 font-normal">(Optional)</span></label>
+            <label className="block text-sm font-bold text-[#172033]">Super Built-Up Area</label>
             <div className="relative">
               <input 
                 type="number" 
@@ -249,77 +321,165 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
 
           <div className="h-px bg-slate-100 my-2" />
 
-          {/* Other Area Name Section */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Other Builder-Stated Area</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-[11px] font-black text-[#64748B] uppercase">Area Label</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Saleable Area"
-                  value={formData.otherAreaName}
-                  onChange={(e) => setFormData({ ...formData, otherAreaName: e.target.value })}
-                  className="w-full h-12 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium outline-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[11px] font-black text-[#64748B] uppercase">Value ({unitSuffix})</label>
-                <input 
-                  type="number" 
-                  placeholder="0.00"
-                  value={formData.otherAreaValue}
-                  onChange={(e) => setFormData({ ...formData, otherAreaValue: e.target.value })}
-                  className="w-full h-12 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium outline-none"
-                />
-                <DualEquivalent value={formData.otherAreaValue} />
-              </div>
+          {/* Other Areas Section */}
+          <div className="space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Other Areas</h3>
+              <p className="text-[11px] text-[#64748B] font-medium italic">Add only if shown separately in the builder's documents.</p>
+            </div>
+
+            <div className="space-y-4">
+              {formData.otherAreas.map((area, index) => (
+                <div key={index} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 relative group animate-in fade-in slide-in-from-top-2 duration-300">
+                  <button 
+                    onClick={() => removeOtherArea(index)}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-100 transition-all shadow-sm z-10"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-[#64748B] uppercase tracking-wider">Area Type</label>
+                      <div className="relative">
+                        <select 
+                          value={area.type}
+                          onChange={(e) => updateOtherArea(index, { type: e.target.value as any })}
+                          className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium outline-none appearance-none focus:ring-2 focus:ring-[#2457D6] transition-all"
+                        >
+                          <option value="Balcony">Balcony</option>
+                          <option value="Utility">Utility</option>
+                          <option value="Terrace">Terrace</option>
+                          <option value="Private Garden">Private Garden</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[10px] font-black text-[#64748B] uppercase tracking-wider">Area ({unitSuffix})</label>
+                      <input 
+                        type="number" 
+                        placeholder="0.00"
+                        value={area.value}
+                        onChange={(e) => updateOtherArea(index, { value: e.target.value })}
+                        className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#2457D6] transition-all"
+                      />
+                    </div>
+
+                    {area.type === 'Other' && (
+                      <div className="sm:col-span-2 space-y-2">
+                        <label className="block text-[10px] font-black text-[#64748B] uppercase tracking-wider">Area Name</label>
+                        <input 
+                          type="text" 
+                          placeholder="Enter area name"
+                          value={area.name}
+                          onChange={(e) => updateOtherArea(index, { name: e.target.value })}
+                          className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-[#2457D6] transition-all"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-2">
+                    <DualEquivalent value={area.value} />
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={addOtherArea}
+                className="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-slate-500 hover:text-[#2457D6] hover:border-[#2457D6] hover:bg-blue-50/50 transition-all text-sm font-bold group"
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-[#2457D6] group-hover:text-white transition-all">
+                  <Plus className="w-3.5 h-3.5" />
+                </div>
+                <span>Add Another Area</span>
+              </button>
             </div>
           </div>
 
-          {/* Balcony Area */}
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#172033]">Builder-Stated Balcony / Exclusive Open Area <span className="text-slate-400 font-normal">(Optional)</span></label>
-            <div className="relative">
-              <input 
-                type="number" 
-                placeholder="e.g. 120"
-                value={formData.balconyArea}
-                onChange={(e) => setFormData({ ...formData, balconyArea: e.target.value })}
-                className="w-full h-14 px-4 pr-16 bg-white border border-[#E2E8F0] rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#2457D6] focus:border-[#2457D6] transition-all outline-none"
-              />
-              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 text-[10px] font-black uppercase">
-                {unitSuffix}
+          {/* Loading / Common Area */}
+          <div className="space-y-6">
+            <div className="h-px bg-slate-100 my-2" />
+            
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Loading / Common Area</h3>
+                <p className="text-sm text-[#172033] font-bold">Is loading mentioned in the builder's documents?</p>
               </div>
-            </div>
-            <DualEquivalent value={formData.balconyArea} />
-            <p className="text-[11px] text-[#64748B] font-medium italic mt-1">Enter only if shown separately in the builder's documents.</p>
-          </div>
 
-          {/* Loading % */}
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-[#172033]">Builder-Stated Loading % <span className="text-slate-400 font-normal">(Optional)</span></label>
-            <div className="relative">
-              <input 
-                type="number" 
-                placeholder="e.g. 30"
-                value={formData.loadingPercent}
-                onChange={(e) => setFormData({ ...formData, loadingPercent: e.target.value })}
-                className={`w-full h-14 px-4 pr-10 bg-white border ${errors.loadingPercent ? 'border-red-500' : 'border-[#E2E8F0]'} rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#2457D6] focus:border-[#2457D6] transition-all outline-none`}
-              />
-              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 font-bold">
-                %
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'none', label: 'No' },
+                  { id: 'percentage', label: 'Percentage' },
+                  { id: 'fixed', label: 'Fixed Area' }
+                ].map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, loadingType: option.id as any })}
+                    className={`h-12 rounded-xl text-xs font-bold transition-all border ${
+                      formData.loadingType === option.id
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200'
+                        : 'bg-white border-slate-200 text-[#64748B] hover:border-blue-400'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
+
+              {formData.loadingType === 'percentage' && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="block text-xs font-black text-[#64748B] uppercase tracking-wider">Loading Percentage</label>
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      placeholder="e.g. 30"
+                      value={formData.loadingPercent}
+                      onChange={(e) => setFormData({ ...formData, loadingPercent: e.target.value })}
+                      className={`w-full h-14 px-4 pr-10 bg-white border ${errors.loadingPercent ? 'border-red-500' : 'border-[#E2E8F0]'} rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#2457D6] focus:border-[#2457D6] transition-all outline-none`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 font-bold text-sm">
+                      %
+                    </div>
+                  </div>
+                  {errors.loadingPercent && <p className="text-[10px] font-bold text-red-600">{errors.loadingPercent}</p>}
+                </div>
+              )}
+
+              {formData.loadingType === 'fixed' && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="block text-xs font-black text-[#64748B] uppercase tracking-wider">Loading Area ({unitSuffix})</label>
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      placeholder="e.g. 450"
+                      value={formData.loadingArea}
+                      onChange={(e) => setFormData({ ...formData, loadingArea: e.target.value })}
+                      className={`w-full h-14 px-4 pr-16 bg-white border ${errors.loadingArea ? 'border-red-500' : 'border-[#E2E8F0]'} rounded-2xl text-sm font-medium focus:ring-2 focus:ring-[#2457D6] focus:border-[#2457D6] transition-all outline-none`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 text-[10px] font-black uppercase">
+                      {unitSuffix}
+                    </div>
+                  </div>
+                  {errors.loadingArea && <p className="text-[10px] font-bold text-red-600">{errors.loadingArea}</p>}
+                  <DualEquivalent value={formData.loadingArea} />
+                </div>
+              )}
             </div>
-            {errors.loadingPercent && <p className="text-[10px] font-bold text-red-600">{errors.loadingPercent}</p>}
-            <p className="text-[11px] text-[#64748B] font-medium italic">Enter this only if the builder has explicitly stated a loading percentage.</p>
           </div>
 
           <div className="h-px bg-slate-100 my-2" />
 
           {/* Information Sources */}
           <div className="space-y-4">
-            <label className="block text-sm font-bold text-[#172033]">Source of Builder Area</label>
+            <label className="block text-sm font-bold text-[#172033]">Source of Area</label>
             <div className="flex flex-wrap gap-2">
               {INFORMATION_SOURCES.map(source => (
                 <button
@@ -364,7 +524,7 @@ export const BuilderAreaView: React.FC<BuilderAreaViewProps> = ({ onBack, onCont
             <Info className="w-5 h-5" />
           </div>
           <p className="text-xs text-blue-800 font-medium leading-relaxed">
-            Enter the figures exactly as stated by the builder. Flatverify will compare these with your verified measurements in a later step.
+            Enter the figures exactly as stated. Flatverify will compare these with your measurements in a later step.
           </p>
         </div>
       </div>

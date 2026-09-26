@@ -103,20 +103,6 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
     });
   }, [rooms]);
 
-  const handleAddRoom = () => {
-    const newRoom: RoomData = {
-      id: `room_${Date.now()}`,
-      name: `Room ${rooms.length + 1}`,
-      lengthMeters: DimensionParser.feetInchesToMeters(10, 0),
-      widthMeters: DimensionParser.feetInchesToMeters(10, 0),
-      unit: displayUnit === 'metric' ? 'meterCm' : 'feetInches',
-      isAutoExtracted: false,
-      isUserVerified: true,
-    };
-    setRooms(prev => [...prev, newRoom]);
-    setMode('manual');
-  };
-
   const handleUpdateRoom = (index: number, updated: RoomData) => {
     setRooms(prev => {
       const copy = [...prev];
@@ -220,14 +206,6 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
     setMode('scan');
   };
 
-  const handleVerifyRoom = (index: number) => {
-    setRooms(prev => {
-      const copy = [...prev];
-      copy[index] = { ...copy[index], isUserVerified: true };
-      return copy;
-    });
-  };
-
   const unverifiedCount = rooms.filter(r => r.isAutoExtracted && !r.isUserVerified).length;
   const verifiedCount = rooms.filter(r => r.isUserVerified).length;
   
@@ -250,7 +228,7 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
           <div className="p-1.5 rounded-lg group-hover:bg-slate-100 transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </div>
-          <span className="text-sm font-bold tracking-tight">Builder-Stated Area</span>
+          <span className="text-sm font-bold tracking-tight">Back</span>
         </button>
 
         <div className="space-y-1">
@@ -261,7 +239,9 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
             </div>
           </div>
           <h1 className="text-2xl font-black text-[#172033] tracking-tight">Measure Your Home</h1>
-          <p className="text-sm text-[#64748B] font-medium mt-1">Add the size of each room.</p>
+          <p className="text-sm text-[#64748B] font-medium mt-1">
+            {mode === 'selection' ? 'Add room dimensions to verify carpet area.' : mode === 'scan' ? 'Scan a floor plan to extract room dimensions.' : 'Enter the measurements of each room.'}
+          </p>
         </div>
       </div>
 
@@ -270,7 +250,7 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
           <div className="mb-8">
             <h2 className="text-xl font-bold text-[#172033]">How would you like to add your measurements?</h2>
             <p className="text-sm text-[#697386] mt-1 leading-relaxed">
-              Enter room measurements manually or scan a floor plan to extract dimensions for review.
+              Choose a method to provide your room measurements.
             </p>
           </div>
 
@@ -284,8 +264,8 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
                   <Ruler className="w-7 h-7" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-black text-lg text-[#172033]">Manual Entry</h3>
-                  <p className="text-sm text-[#64748B] font-medium">Enter room dimensions yourself.</p>
+                  <h3 className="font-black text-lg text-[#172033]">Enter Manually</h3>
+                  <p className="text-sm text-[#64748B] font-medium">Enter room measurements yourself.</p>
                 </div>
                 <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-600" />
               </div>
@@ -300,8 +280,8 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
                   <Scan className="w-7 h-7" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-black text-lg text-[#172033]">Scan Blueprint</h3>
-                  <p className="text-sm text-[#64748B] font-medium">Upload or scan a floor plan and review detected dimensions.</p>
+                  <h3 className="font-black text-lg text-[#172033]">Scan Floor Plan</h3>
+                  <p className="text-sm text-[#64748B] font-medium">Upload a floor plan and we'll detect the measurements for you.</p>
                 </div>
                 <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-600" />
               </div>
@@ -313,7 +293,7 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
           {/* Simple Summary Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div>
-              <h3 className="text-sm font-black text-[#172033] uppercase tracking-wider">Your measurements</h3>
+              <h3 className="text-sm font-black text-[#172033]">Your Measurements</h3>
               <p className="text-xs font-bold text-[#64748B] mt-0.5">
                 {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} added
               </p>
@@ -335,26 +315,35 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
           {/* Room Lists */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-black text-[#64748B] uppercase tracking-widest">Rooms</h2>
-              <div className="flex items-center gap-2">
+              <h2 className="text-xs font-black text-[#64748B]">Rooms</h2>
+              {mode === 'manual' && rooms.length > 0 && (
                 <button
                   onClick={() => setIsAddIndividualModalOpen(true)}
-                  className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] rounded-xl flex items-center gap-1.5 border border-blue-200 transition-colors"
+                  className="px-4 py-2 bg-[#2457D6] hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>Add Room</span>
                 </button>
-                <button
-                  onClick={() => setMode('scan')}
-                  className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-[11px] rounded-xl flex items-center gap-1.5 border border-slate-200 transition-colors"
-                >
-                  <Scan className="w-3.5 h-3.5" />
-                  <span>Scan Floor Plan</span>
-                </button>
-              </div>
+              )}
             </div>
 
             <div className="space-y-3">
+              {rooms.length === 0 && mode === 'manual' && (
+                <div className="py-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 mb-4">
+                    <Ruler className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-black text-[#172033]">No rooms added yet</h3>
+                  <p className="text-sm font-medium text-[#64748B] mt-1 max-w-[200px]">Add your first room and enter its measurements.</p>
+                  <button
+                    onClick={() => setIsAddIndividualModalOpen(true)}
+                    className="mt-6 px-6 py-3 bg-[#2457D6] hover:bg-blue-700 text-white font-bold text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Room</span>
+                  </button>
+                </div>
+              )}
               {rooms.map((room, idx) => (
                 room.isAutoExtracted ? (
                   <ScanRoomCard
@@ -379,77 +368,90 @@ export const YourMeasurementsView: React.FC<YourMeasurementsViewProps> = ({ onBa
             </div>
           </div>
 
+          {/* Mode Switcher / Action Areas */}
           {mode === 'scan' && (
-            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black text-[#64748B] uppercase tracking-widest">Scan Actions</h3>
-              </div>
-              
-              {isProcessing ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold text-blue-900">
-                    <span className="flex items-center gap-2">
-                      <ScanLine className="w-4 h-4 animate-spin text-blue-600" />
-                      {ocrStatusText}
-                    </span>
-                    <span>{ocrProgress}%</span>
+            <div className="space-y-6">
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black text-[#64748B] uppercase tracking-widest">Scan Floor Plan</h3>
+                </div>
+                
+                {isProcessing ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-blue-900">
+                      <span className="flex items-center gap-2">
+                        <ScanLine className="w-4 h-4 animate-spin text-blue-600" />
+                        {ocrStatusText}
+                      </span>
+                      <span>{ocrProgress}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-600 transition-all duration-300"
+                        style={{ width: `${ocrProgress}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-blue-600 transition-all duration-300"
-                      style={{ width: `${ocrProgress}%` }}
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
                     />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#172033] hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Upload Image</span>
+                    </button>
+                    <input
+                      ref={cameraInputRef}
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="flex-1 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#172033] hover:bg-slate-50 transition-colors shadow-sm"
+                    >
+                      <Camera className="w-4 h-4" />
+                      <span>Camera</span>
+                    </button>
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex-1 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#172033] hover:bg-slate-50 transition-colors"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Image</span>
-                  </button>
-                  <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => cameraInputRef.current?.click()}
-                    className="flex-1 h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-[#172033] hover:bg-slate-50 transition-colors"
-                  >
-                    <Camera className="w-4 h-4" />
-                    <span>Camera</span>
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => setMode('manual')}
+                  className="w-full py-4 text-sm font-bold text-[#64748B] hover:text-[#2457D6] transition-colors flex items-center justify-center gap-2 group"
+                >
+                  <Ruler className="w-4 h-4 text-slate-400 group-hover:text-[#2457D6]" />
+                  <span>Prefer to enter measurements yourself? Use Manual Entry</span>
+                </button>
+              </div>
             </div>
           )}
+
+          {/* Primary Action */}
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:mt-12">
+            <button
+              onClick={onContinue}
+              disabled={!canContinue}
+              className={`w-full h-16 ${canContinue ? 'bg-[#2457D6] hover:bg-[#1D47B0]' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} text-white font-black text-lg rounded-[24px] shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98] cursor-pointer`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
-
-      {/* Primary Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-100 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:mt-12">
-        <button
-          onClick={onContinue}
-          disabled={!canContinue}
-          className={`w-full h-16 ${canContinue ? 'bg-[#2457D6] hover:bg-[#1D47B0]' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} text-white font-black text-lg rounded-[24px] shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 transition-all active:scale-[0.98] cursor-pointer`}
-        >
-          <span>Continue to Comparison</span>
-          <ArrowRight className="w-5 h-5" />
-        </button>
-      </div>
 
       <AddIndividualRoomModal
         isOpen={isAddIndividualModalOpen}
